@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager UI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <span class="avatar">G</span>
+                    <span class="username">Gabung</span>
+                </div>
+                <div class="actions">
+                    <span class="icon"><a href="#">🔔</a></span>
+                </div>
+            </div>
+
+            <button class="add-task-btn" id="sidebar-add-btn">
+                <span class="plus-icon">+</span> Add task
+            </button>
+
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#"><span class="icon">📅</span> Today </a><span class="count" id="sidebar-count">0</span></li>
+                    <li><a href="#"><span class="icon">🗓️</span> Upcoming </a></li>
+                    <li><a href="#"><span class="icon">👌</span> Done </a></li>
+                    <li><a href="#"><span class="icon">❓</span> Help & resources </a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="content-header">
+                <div class="breadcrumbs">
+                    <span>&lt;</span> <span>My Projects /</span>
+                </div>
+                <h1>To Do List</h1>
+            </header>
+
+            <div class="task-input-container">
+                <input type="text" id="task-title" class="task-title-input" placeholder="What do you need to do?">
+                <input type="text" id="task-desc" class="task-desc-input" placeholder="Description">
+                
+                <div class="task-input-controls">
+                    <div class="left-controls">
+                        <button class="control-btn active-date">📅 Today</button>
+                    </div>
+                </div>
+                <div class="task-input-actions">
+                    <h2> </h2>
+                    <div class="action-buttons">
+                        <button class="btn-cancel" id="btn-cancel">Cancel</button>
+                        <button class="btn-submit" id="btn-submit">Add task</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-list">
+                <div class="task-section">
+                    <h3 class="section-title"><span>📂</span> Tasks <span id="task-count" class="section-count">0</span></h3>
+                    <ul class="tasks" id="dynamic-task-list"></ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
