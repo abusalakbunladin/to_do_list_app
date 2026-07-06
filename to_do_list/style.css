@@ -415,3 +415,21 @@ a {
     margin-top: 6px;
     font-weight: 500;
 }
+
+
+
+
+
+
+
+
+
+
+/* jangan di hapus*/
+
+.help-section {
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 10px;
+    cursor: pointer;
+}
