@@ -1,52 +1,89 @@
 const taskTitleInput = document.getElementById('task-title');
 const taskDescInput = document.getElementById('task-desc');
+const taskDateInput = document.getElementById('task-date');
+const taskInputBox = document.getElementById('task-input-box');
 const btnSubmit = document.getElementById('btn-submit');
 const btnCancel = document.getElementById('btn-cancel');
 const taskListContainer = document.getElementById('dynamic-task-list');
 const taskCountDisplay = document.getElementById('task-count');
-const sidebarCountDisplay = document.getElementById('sidebar-count');
-const sidebarAddBtn = document.getElementById('sidebar-add-btn');
+const contentTitle = document.getElementById('content-title');
+const navItems = document.querySelectorAll('.main-nav li');
+const countAddTask = document.getElementById('count-add-task');
+const countToday = document.getElementById('count-today');
+const countUpcoming = document.getElementById('count-upcoming');
+const countDone = document.getElementById('count-done');
+const countAll = document.getElementById('count-all');
 
-// Mengambil data dari LocalStorage
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+let currentView = 'add-task';
 
-// Fungsi Render Menggunakan template data-index (Lebih aman dibanding onclick inline)
+function setDefaultDate() {
+    const today = new Date().toISOString().split('T')[0];
+    taskDateInput.value = today;
+}
+
+function getTodayString() {
+    return new Date().toISOString().split('T')[0];
+}
+
 function renderTasks() {
     taskListContainer.innerHTML = '';
-    
-    tasks.forEach((task, index) => {
+    const todayStr = getTodayString();
+
+    if (currentView === 'add-task') {
+        taskInputBox.style.display = 'block';
+    } else {
+        taskInputBox.style.display = 'none';
+    }
+
+    const filteredTasks = tasks.filter(task => {
+        if (currentView === 'today') {
+            return task.date === todayStr && !task.completed;
+        } else if (currentView === 'upcoming') {
+            return task.date > todayStr && !task.completed;
+        } else if (currentView === 'done') {
+            return task.completed;
+        }
+        return true; 
+    });
+
+    filteredTasks.forEach((task) => {
+        const originalIndex = tasks.indexOf(task);
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
         
+        const dateLabel = task.date === todayStr ? 'Today' : task.date;
+
         li.innerHTML = `
-            <span class="checkbox" data-action="toggle" data-index="${index}">
+            <span class="checkbox" data-action="toggle" data-index="${originalIndex}">
                 ${task.completed ? '●' : '○'}
             </span>
-            <div class="task-details" data-action="toggle" data-index="${index}">
+            <div class="task-details" data-action="toggle" data-index="${originalIndex}">
                 <span class="task-name">${escapeHTML(task.title)}</span>
                 ${task.desc.trim() ? `<span class="task-meta">${escapeHTML(task.desc)}</span>` : ''}
+                <span class="task-date-badge">📅 ${dateLabel}</span>
             </div>
-            <button class="delete-btn" data-action="delete" data-index="${index}" title="Hapus tugas">Hapus</button>
+            <button class="delete-btn" data-action="delete" data-index="${originalIndex}">Hapus</button>
         `;
         
         taskListContainer.appendChild(li);
     });
 
-    // Update Angka Counter
-    taskCountDisplay.textContent = tasks.length;
+    taskCountDisplay.textContent = filteredTasks.length;
+
+    countAddTask.textContent = tasks.length;
+    countToday.textContent = tasks.filter(t => t.date === todayStr && !t.completed).length;
+    countUpcoming.textContent = tasks.filter(t => t.date > todayStr && !t.completed).length;
+    countDone.textContent = tasks.filter(t => t.completed).length;
+    countAll.textContent = tasks.length;
     
-    // Counter Sidebar khusus menghitung tugas yang BELUM selesai
-    const activeTasks = tasks.filter(t => !t.completed).length;
-    sidebarCountDisplay.textContent = activeTasks;
-    
-    // Simpan ke LocalStorage
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Fungsi Tambah Tugas
 function addTask() {
     const title = taskTitleInput.value.trim();
     const desc = taskDescInput.value.trim();
+    const date = taskDateInput.value;
 
     if (title === '') {
         alert('Nama tugas tidak boleh kosong!');
@@ -57,10 +94,10 @@ function addTask() {
     tasks.push({
         title: title,
         desc: desc,
+        date: date || getTodayString(),
         completed: false 
     });
 
-    // Reset Form
     clearInput();
     renderTasks();
 }
@@ -68,16 +105,15 @@ function addTask() {
 function clearInput() {
     taskTitleInput.value = '';
     taskDescInput.value = '';
+    setDefaultDate();
 }
 
-// Security fix: Mencegah XSS injection dari input user
 function escapeHTML(str) {
     return str.replace(/[&<>'"]/g, 
         tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
     );
 }
 
-// Event Delegation (Menangani klik di dalam list secara terpusat)
 taskListContainer.addEventListener('click', function(e) {
     const target = e.target.closest('[data-action]');
     if (!target) return;
@@ -96,26 +132,23 @@ taskListContainer.addEventListener('click', function(e) {
     }
 });
 
-// Event Listeners
+navItems.forEach(item => {
+    item.addEventListener('click', function() {
+        navItems.forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+        
+        currentView = this.getAttribute('data-view');
+
+        contentTitle.textContent = this.querySelector('a').textContent.trim();
+        
+        renderTasks();
+    });
+});
+
 btnSubmit.addEventListener('click', addTask);
 btnCancel.addEventListener('click', clearInput);
+taskTitleInput.addEventListener('keypress', e => { if (e.key === 'Enter') addTask(); });
+taskDescInput.addEventListener('keypress', e => { if (e.key === 'Enter') addTask(); });
 
-taskTitleInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        addTask();
-    }
-});
-
-taskDescInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        addTask();
-    }
-});
-
-// Fokus ke input saat tombol "+ Add Task" di sidebar diklik
-sidebarAddBtn.addEventListener('click', () => {
-    taskTitleInput.focus();
-});
-
-// Jalankan render pertama kali aplikasi dibuka
+setDefaultDate();
 renderTasks();
