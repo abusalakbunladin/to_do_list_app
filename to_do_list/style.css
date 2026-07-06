@@ -1,12 +1,12 @@
 
 :root {
-    --primary-red: #db4c3f;
-    --primary-red-hover: #c53727;
-    --bg-main: #ffffff;
-    --bg-sidebar: #fafafa;
-    --text-main: #202020;
+    --primary-red: #3f5cdb;
+    --primary-red-hover: rgb(41, 43, 196);
+    --bg-main: #c9d7f1;
+    --bg-sidebar: #95b4e4;
+    --text-main: #000000;
     --text-muted: #808080;
-    --border-color: #f0f0f0;
+    --border-color: #acc5eb;
     --hover-bg: #f3f3f3;
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
@@ -101,7 +101,7 @@ a {
 }
 
 .add-task-btn:hover {
-    background-color: #ffeae6;
+    background-color: #cad5dd;
 }
 
 .add-task-btn .plus-icon {
@@ -396,8 +396,8 @@ a {
 }
 
 .main-nav li.active {
-    background-color: #ffeae6;
-    color: var(--primary-red);
+    background-color: #e0e0e0;
+    color: var(--text-main);
     font-weight: 600;
 }
 
@@ -415,8 +415,6 @@ a {
     margin-top: 6px;
     font-weight: 500;
 }
-
-
 
 
 
