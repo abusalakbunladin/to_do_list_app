@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const MAX_DESC_LENGTH = 500;
     let isSubmitting = false;
 
-    // --- Elemen bantu (pesan error + counter karakter) dibuat lewat JS ---
-    // Supaya file ini tetap mandiri dan tidak perlu mengubah index.html
-    // (index.html adalah tanggung jawab Orang 1).
     const titleMetaRow = document.createElement('div');
     titleMetaRow.className = 'title-meta-row';
 
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
     descMetaRow.appendChild(descCharCounter);
     taskDescInput.insertAdjacentElement('afterend', descMetaRow);
 
-    // --- Pemilihan prioritas (wajib dipilih sebelum tugas bisa ditambahkan) ---
     const PRIORITIES = [
         { value: 'tinggi', label: 'Tinggi', className: 'priority-high' },
         { value: 'sedang', label: 'Sedang', className: 'priority-medium' },
@@ -86,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
     priorityError.className = 'error-message';
     priorityErrorRow.appendChild(priorityError);
 
-    // Ditempatkan tepat sebelum baris tombol Cancel/Add task
     const taskActionsRow = taskInputBox.querySelector('.task-input-actions');
     taskActionsRow.insertAdjacentElement('beforebegin', priorityRow);
     taskActionsRow.insertAdjacentElement('beforebegin', priorityErrorRow);
@@ -111,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
         priorityError.classList.remove('show');
     }
 
-    // --- Pemilihan kategori tugas (wajib dipilih sebelum tugas bisa ditambahkan) ---
     const CATEGORIES = ['💼 Kerja', '🎓 Kuliah', '🏠 Pribadi'];
 
     const categorySelect = document.createElement('select');
@@ -131,12 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
         opt.textContent = cat;
         categorySelect.appendChild(opt);
     });
-
-    // Diletakkan di baris yang sama dengan input tanggal
     const leftControls = taskInputBox.querySelector('.left-controls');
     leftControls.appendChild(categorySelect);
 
-    // Pesan error khusus kategori, ditaruh tepat di bawah baris tanggal/kategori
     const categoryErrorRow = document.createElement('div');
     categoryErrorRow.className = 'category-error-row';
 
@@ -172,15 +163,10 @@ document.addEventListener('DOMContentLoaded', function() {
         taskDateInput.setAttribute('min', today);
     }
 
-    // Bersihkan teks judul: hapus spasi di awal/akhir DAN rapikan spasi ganda di tengah
-    // (mis. "Beli   Buku " -> "Beli Buku")
     function sanitizeText(str) {
         return str.replace(/\s+/g, ' ').trim();
     }
 
-    // Bersihkan teks deskripsi TAPI tetap pertahankan baris baru yang sengaja
-    // diketik user di textarea (hanya merapikan spasi/tab berlebih per baris,
-    // dan membatasi baris kosong berturut-turut jadi maksimal 1).
     function sanitizeMultiline(str) {
         return str
             .split('\n')
@@ -291,7 +277,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.AppStore.saveAndSync();
         flashSuccess();
 
-        // cegah klik ganda / submit dobel dalam waktu singkat
         setTimeout(() => {
             isSubmitting = false;
             btnSubmit.disabled = false;
@@ -301,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
     btnSubmit.addEventListener('click', handleAddTask);
     btnCancel.addEventListener('click', resetForm);
 
-    // Enter di field judul langsung submit
     taskTitleInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -309,8 +293,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Di deskripsi (textarea), Enter biasa = baris baru seperti biasa.
-    // Ctrl+Enter / Cmd+Enter = submit, supaya tetap ada shortcut cepat.
     taskDescInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
@@ -318,7 +300,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Validasi & counter real-time saat mengetik
     taskTitleInput.addEventListener('input', function() {
         if (taskTitleInput.value.trim()) clearError();
         updateCharCounter();
