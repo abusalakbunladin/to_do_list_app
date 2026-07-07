@@ -60,10 +60,9 @@ body.modal-open { overflow: hidden; }
 .help-section h4 { font-size: 20px; color: var(--primary-red); margin-bottom: 6px; }
 .help-legend { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-.legend-dot.red { background: #ff4d4f; }
-.legend-dot.yellow { background: #ffc107; }
 
-/* ---- Profil ---- */
+
+
 .text-center { text-align: center; }
 .profile-avatar {
     width: 55px; height: 55px; background: var(--primary-red); color: white; border-radius: 50%;
@@ -84,7 +83,6 @@ body.modal-open { overflow: hidden; }
     border-radius: 6px; transition: width 0.4s ease;
 }
 
-/* ---- Riwayat Tugas di Profil ---- */
 .profile-history { margin-top: 18px; text-align: left; }
 .history-header {
     display: flex; justify-content: space-between; align-items: center;
