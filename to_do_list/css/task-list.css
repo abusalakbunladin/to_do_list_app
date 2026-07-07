@@ -93,13 +93,12 @@
     background: #fffdf5;
 }
 
-/* Animasi masuk untuk tugas yang baru pertama kali tampil di daftar */
 .task-item.task-enter {
     opacity: 0;
     transform: translateY(-8px) scale(0.97);
 }
 
-/* Animasi keluar untuk tugas yang sedang dihapus / dicoret-selesai keluar dari view */
+
 .task-item.task-leaving {
     opacity: 0;
     transform: scale(0.96);
