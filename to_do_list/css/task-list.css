@@ -4,6 +4,17 @@
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 8px;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.section-count {
+    font-size: 11px;
+    background: rgba(0,0,0,0.08);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: auto;
 }
 
 .tasks { list-style: none; }
@@ -36,6 +47,20 @@
 
 .task-item.completed .task-name { text-decoration: line-through; color: var(--text-muted); }
 .task-item.completed .checkbox { color: #058527; }
+
+.task-item.overdue .task-date-badge {
+    color: #cf1322;
+    background: #fff1f0;
+}
+
+.task-empty {
+    text-align: center;
+    padding: 24px 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    background: transparent;
+    box-shadow: none;
+}
 
 .delete-btn {
     background: none; border: none; color: #b3b3b3;
