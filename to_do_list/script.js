@@ -88,23 +88,32 @@ function addTask() {
     const desc = taskDescInput.value.trim();
     const date = taskDateInput.value;
 
+    function addTask() {
+    const title = taskTitleInput.value.trim();
+    const desc = taskDescInput.value.trim();
+    const date = taskDateInput.value;
+    const today = getTodayString();
+
     if (title === '') {
         alert('Nama tugas tidak boleh kosong!');
-        taskTitleInput.focus();
+        return;
+    }
+
+    if (date < today) {
+        alert('Tidak bisa memilih tanggal yang sudah lewat!');
         return;
     }
 
     tasks.push({
         title: title,
         desc: desc,
-        date: date || getTodayString(),
+        date: date || today,
         completed: false 
     });
 
     clearInput();
     renderTasks();
 }
-
 function clearInput() {
     taskTitleInput.value = '';
     taskDescInput.value = '';
