@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const store = window.AppStore;
         const todayStr = store.getTodayString();
 
-        // Urutkan: yang paling lama terlewat tampil paling atas
         const tasksTerlewat = store.tasks
             .filter(t => t.date < todayStr && !t.completed)
             .sort((a, b) => new Date(a.date) - new Date(b.date));
