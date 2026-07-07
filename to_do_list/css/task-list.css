@@ -35,6 +35,19 @@
 }
 .task-search-input:focus { border-color: var(--primary-red); }
 
+.task-sort-select {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    background: white;
+    color: var(--text-main);
+    outline: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.task-sort-select:focus { border-color: var(--primary-red); }
+
 .btn-clear-completed {
     border: none;
     background: #fff1f0;
@@ -58,6 +71,7 @@
     padding: 10px 4px 4px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    transition: opacity 200ms ease;
 }
 
 .task-item {
@@ -69,12 +83,49 @@
     margin-bottom: 6px;
     border-radius: 8px;
     box-shadow: var(--shadow-sm);
+    max-height: 300px;
+    transition: transform 240ms ease, opacity 220ms ease, max-height 220ms ease,
+                margin 220ms ease, padding 220ms ease, border-color 220ms ease;
+}
+
+.task-item.pinned {
+    border-left: 3px solid #d48806;
+    background: #fffdf5;
+}
+
+/* Animasi masuk untuk tugas yang baru pertama kali tampil di daftar */
+.task-item.task-enter {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+}
+
+/* Animasi keluar untuk tugas yang sedang dihapus / dicoret-selesai keluar dari view */
+.task-item.task-leaving {
+    opacity: 0;
+    transform: scale(0.96);
+    max-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-color: transparent;
+    overflow: hidden;
+    pointer-events: none;
 }
 
 .checkbox { cursor: pointer; margin-right: 12px; font-size: 18px; user-select: none; }
-.task-details { display: flex; flex-direction: column; flex-grow: 1; }
+.task-details { display: flex; flex-direction: column; flex-grow: 1; cursor: pointer; }
 .task-name { font-size: 14px; font-weight: 500; }
+.task-name[data-action="edit"] { cursor: pointer; }
+.task-name[data-action="edit"]:hover { text-decoration: underline dotted; }
+.task-name[data-action="edit"]:hover::after { content: " ✏️"; opacity: 0.6; font-size: 11px; }
 .task-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+mark.search-highlight {
+    background-color: #ffe58f;
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 3px;
+}
 
 .task-date-badge {
     font-size: 11px;
@@ -103,12 +154,77 @@
     box-shadow: none;
 }
 
+.task-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 8px;
+}
+
+.pin-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    opacity: 0.35;
+    transition: opacity var(--transition-fast), transform var(--transition-fast), background-color var(--transition-fast);
+}
+.pin-btn:hover { opacity: 0.8; background: #fff7e6; }
+.pin-btn.active { opacity: 1; transform: scale(1.15); background: #fff7e6; }
+
 .delete-btn {
     background: none; border: none; color: #b3b3b3;
     cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 4px;
     transition: color var(--transition-fast);
 }
 .delete-btn:hover { color: red; background: #fff0f0; }
+
+/* Mode edit langsung di dalam item tugas */
+.task-item-editing { align-items: stretch; }
+.task-edit-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+.task-edit-input {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    background: #fbfdff;
+}
+.task-edit-input:focus { border-color: var(--primary-red); background: white; }
+.task-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.btn-edit-save {
+    background: var(--primary-red);
+    color: white;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-edit-save:hover { background: var(--primary-red-hover); }
+.btn-edit-cancel {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.btn-edit-cancel:hover { background: rgba(0,0,0,0.05); }
 
 .undo-toast {
     position: fixed;
