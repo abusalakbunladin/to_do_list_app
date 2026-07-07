@@ -36,7 +36,6 @@ body.modal-open { overflow: hidden; }
 .close-modal:hover { background: #f0f0f0; }
 .close-modal:focus-visible { outline: 2px solid var(--primary-red); outline-offset: 2px; }
 
-/* ---- Notifikasi ---- */
 .notif-group-label {
     font-size: 11px; font-weight: bold; text-transform: uppercase;
     color: var(--text-muted); margin: 12px 0 6px; letter-spacing: 0.5px;
@@ -55,7 +54,7 @@ body.modal-open { overflow: hidden; }
 .notif-item.hampir-habis { background-color: #fffbe6; border-left: 4px solid #ffc107; }
 .notif-item.hampir-habis strong { color: #d46b08; }
 
-/* ---- Help & Resources ---- */
+
 .help-section { margin-bottom: 16px; }
 .help-section h4 { font-size: 20px; color: var(--primary-red); margin-bottom: 6px; }
 .help-legend { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; }
