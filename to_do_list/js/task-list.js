@@ -24,9 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return [...tasks].sort((a, b) => a.date.localeCompare(b.date));
         },
 
-        // Urutkan tugas sesuai mode yang dipilih (tanggal / nama / prioritas).
-        // Tugas yang di-pin selalu naik ke atas — sort JS dijamin stabil,
-        // jadi urutan relatif di dalam tiap kelompok (pin/non-pin) tetap terjaga.
         applySort: function (tasks, mode) {
             let arr = [...tasks];
             switch (mode) {
@@ -287,10 +284,6 @@ document.addEventListener('DOMContentLoaded', function () {
         taskCountDisplay.textContent = base.length;
     }
 
-    // Membungkus buildList() dengan animasi ala FLIP: tugas yang tetap ada di
-    // daftar akan meluncur halus ke posisi/grup barunya, dan tugas yang baru
-    // pertama kali muncul akan fade-in. Animasi "keluar" (hilang) ditangani
-    // terpisah di listener klik, sebelum data benar-benar dihapus/diubah.
     function performRender() {
         if (!listContainer) return;
 
