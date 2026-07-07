@@ -5,17 +5,94 @@
     margin-bottom: 40px;
     background: white;
     box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Sekilas hijau saat tugas berhasil ditambahkan */
+.task-input-container.success-flash {
+    border-color: #058527;
+    box-shadow: 0 0 0 3px rgba(5, 133, 39, 0.15);
 }
 
 .task-title-input, .task-desc-input {
     width: 100%;
     border: none;
     outline: none;
-    padding: 6px 0;
+    padding: 6px 10px 6px 10px;
 }
 
-.task-title-input { font-size: 16px; font-weight: 500; }
-.task-desc-input { font-size: 14px; margin-bottom: 12px; color: #555; }
+.task-title-input { font-size: 16px; font-weight: 500;}
+
+.task-desc-input {
+    font-size: 14px;
+    color: #555;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: none;
+    height: 160px;
+    overflow-y: auto;
+}
+
+.task-title-input:hover,
+.task-desc-input:hover {
+    background-color: #e7e7e7;
+    transition: 0.2s ease-in-out;
+
+    border-radius: 4px;
+}
+
+.task-title-input::placeholder,
+.task-desc-input::placeholder { color: var(--text-muted); }
+
+.task-title-input:focus,
+.task-desc-input:focus {
+    box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15);
+    border-radius: 4px;
+
+    background-color: #d9e0ff;
+}
+
+/* State error pada input judul */
+.task-title-input.error { color: #cf1322; }
+
+.task-title-input.shake { animation: shake 0.35s ease; }
+
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+}
+
+/* Baris kecil di bawah judul: pesan error (kiri) & counter karakter (kanan) */
+.title-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 16px;
+    margin-bottom: 2px;
+}
+
+.error-message {
+    display: none;
+    font-size: 12px;
+    color: #cf1322;
+}
+.error-message.show { display: block; }
+
+.char-counter {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+.char-counter.warning { color: #d46b08; font-weight: 600; }
+
+.desc-meta-row {
+    display: flex;
+    justify-content: flex-end;
+    min-height: 14px;
+    margin-bottom: 12px;
+}
 
 .task-date-input {
     border: 1px solid var(--border-color);
@@ -26,6 +103,102 @@
     background-color: #f1faf3;
     outline: none;
     cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+.task-date-input:focus { box-shadow: 0 0 0 2px rgba(5, 133, 39, 0.2); }
+.task-date-input:hover { background-color: #dbf7e2; transition: 0.2s ease-in-out; }
+
+/* Dropdown kategori tugas, ditaruh di sebelah input tanggal */
+.task-category-select {
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--primary-red);
+    background-color: #eef1ff;
+    outline: none;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); }
+.task-category-select.error { border-color: #cf1322; }
+.task-category-select.shake { animation: shake 0.35s ease; }
+.task-category-select:hover { background-color: #c4d1f7; transition: 0.2s ease-in-out; }
+
+/* Baris pesan error khusus kategori (di bawah tanggal/kategori) */
+.category-error-row { min-height: 16px; margin-bottom: 6px; }
+
+.priority-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.priority-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.priority-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.priority-options.shake { animation: shake 0.35s ease; }
+
+.priority-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1.5px solid var(--border-color);
+    background: white;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+.priority-pill:active { transform: scale(0.96); }
+
+.priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+}
+
+.priority-pill.priority-high { border-color: #ffb3b3; color: #cf1322; }
+.priority-pill.priority-high .priority-dot { background-color: #ff4d4f; }
+.priority-pill.priority-high:hover { background-color: #fac9c6; }
+.priority-pill.priority-high.active { background-color: #ff4d4f; border-color: #ff4d4f; color: white; }
+.priority-pill.priority-high.active .priority-dot { background-color: white; }
+
+.priority-pill.priority-medium { border-color: #ffe08a; color: #d46b08; }
+.priority-pill.priority-medium .priority-dot { background-color: #ffc107; }
+.priority-pill.priority-medium:hover { background-color: #fcf3c7; }
+.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #ffc107; color: #4a2e00; }
+.priority-pill.priority-medium.active .priority-dot { background-color: #4a2e00; }
+
+.priority-pill.priority-low { border-color: #a7dab3; color: #058527; }
+.priority-pill.priority-low .priority-dot { background-color: #058527; }
+.priority-pill.priority-low:hover { background-color: #cffad8; }
+.priority-pill.priority-low.active { background-color: #058527; border-color: #058527; color: white; }
+.priority-pill.priority-low.active .priority-dot { background-color: white; }
+
+/* Baris pesan error khusus prioritas (di bawah pilihan) */
+.priority-error-row { min-height: 16px; margin-bottom: 8px; }
+
+.task-input-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .task-input-actions {
@@ -43,8 +216,19 @@
     font-weight: 600;
     cursor: pointer;
     border: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
+.action-buttons button:active { transform: scale(0.97); }
 
-.btn-cancel { background: transparent; margin-right: 8px; color: var(--text-muted); }
+.btn-cancel { background: transparent; margin-right: 8px; color: var(--text-main); }
+.btn-cancel:hover { background: rgba(255, 19, 19, 0.897); color: #ffffff;}
 .btn-submit { background: var(--primary-red); color: white; }
 .btn-submit:hover { background: var(--primary-red-hover); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+    .task-title-input.shake,
+    .priority-options.shake,
+    .task-category-select.shake { animation: none; }
+    .task-input-container { transition: none; }
+}
