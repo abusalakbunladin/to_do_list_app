@@ -1,6 +1,14 @@
 :root {
+    /* Nama variabel di bawah ini peninggalan versi awal (--primary-red),
+       walau warna aslinya biru. --primary-color adalah alias yang lebih
+       akurat, dipakai untuk kode baru. Variabel lama TETAP dipertahankan
+       apa adanya supaya file CSS anggota lain (task-form, task-list,
+       modals) yang masih pakai var(--primary-red) tidak rusak. */
     --primary-red: #3f5cdb;
     --primary-red-hover: rgb(41, 43, 196);
+    --primary-color: var(--primary-red);
+    --primary-color-hover: var(--primary-red-hover);
+
     --bg-main: #c9d7f1;
     --bg-sidebar: #95b4e4;
     --text-main: #000000;
@@ -28,12 +36,24 @@ body {
 .app-container {
     display: flex;
     height: 100vh;
+    overflow-x: hidden; /* jaga-jaga saat sidebar mobile animasi masuk/keluar */
 }
 
 .content {
     flex-grow: 1;
     padding: 40px 10%;
     overflow-y: auto;
+}
+
+.content-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.header-text {
+    flex: 1;
+    min-width: 0;
 }
 
 .content-header h1 {
@@ -46,4 +66,16 @@ body {
     color: var(--text-muted);
     font-size: 13px;
     margin-bottom: 15px;
+}
+
+/* ---------------------------------------------------- */
+/* Responsif                                             */
+/* ---------------------------------------------------- */
+@media (max-width: 768px) {
+    .content { padding: 24px 5%; }
+    .content-header h1 { font-size: 22px; margin-bottom: 20px; }
+}
+
+@media (max-width: 480px) {
+    .content { padding: 16px 4%; }
 }
