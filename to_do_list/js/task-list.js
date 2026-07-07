@@ -24,19 +24,27 @@ document.addEventListener('DOMContentLoaded', function () {
             return [...tasks].sort((a, b) => a.date.localeCompare(b.date));
         },
 
-        applySort: function (tasks, mode) {
+        PRIORITY_LEVEL: { rendah: 0, sedang: 1, tinggi: 2 },
+
+        applySort: function (tasks, mode, direction) {
             let arr = [...tasks];
+            const dir = direction === 'desc' ? -1 : 1;
 
             switch (mode) {
                 case 'name':
-                    arr.sort((a, b) => a.title.localeCompare(b.title, 'id', { sensitivity: 'base' }));
+                    arr.sort((a, b) => dir * a.title.localeCompare(b.title, 'id', { sensitivity: 'base' }));
                     break;
                 case 'priority':
+                    arr.sort((a, b) => {
+                        const pa = this.PRIORITY_LEVEL[a.priority] ?? -1;
+                        const pb = this.PRIORITY_LEVEL[b.priority] ?? -1;
+                        return dir * (pa - pb);
+                    });
+                    break;
                 case 'date':
                 default:
-                    arr.sort((a, b) => a.date.localeCompare(b.date));
+                    arr.sort((a, b) => dir * a.date.localeCompare(b.date));
             }
-            arr.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
             return arr;
         }
     };
@@ -50,6 +58,24 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    const PRIORITY_META = {
+        tinggi: { label: 'Tinggi', className: 'priority-high' },
+        sedang: { label: 'Sedang', className: 'priority-medium' },
+        rendah: { label: 'Rendah', className: 'priority-low' }
+    };
+
+    const CATEGORIES = ['💼 Kerja', '🎓 Kuliah', '🏠 Pribadi'];
+
+    // Disamakan dengan batas di form "+ Add Task" (task-form.js)
+    const EDIT_MAX_TITLE_LENGTH = 100;
+    const EDIT_MAX_DESC_LENGTH = 500;
+
+    const SORT_DIRECTION_LABELS = {
+        date: { asc: '⬆️ Terlama → Terbaru', desc: '⬇️ Terbaru → Terlama' },
+        name: { asc: '⬆️ A → Z', desc: '⬇️ Z → A' },
+        priority: { asc: '⬆️ Rendah → Tinggi', desc: '⬇️ Tinggi → Rendah' }
+    };
 
     function formatIndoDate(dateStr) {
         const d = new Date(dateStr + 'T00:00:00');
@@ -95,11 +121,16 @@ document.addEventListener('DOMContentLoaded', function () {
     toolbar.className = 'task-toolbar';
     toolbar.innerHTML = `
         <input type="text" id="task-search" class="task-search-input" placeholder="🔍 Cari tugas...">
+        <select id="task-category-filter" class="task-category-filter-select" title="Filter berdasarkan kategori">
+            <option value="">🗂️ Semua Kategori</option>
+            ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+        </select>
         <select id="task-sort" class="task-sort-select" title="Urutkan tugas">
             <option value="date">📅 Tanggal</option>
-            <option value="name">🔤 Nama A-Z</option>
-            <option value="priority">📌 Prioritas</option>
+            <option value="name">🔤 Nama</option>
+            <option value="priority">🚩 Prioritas</option>
         </select>
+        <button type="button" id="btn-sort-direction" class="btn-sort-direction" title="Klik untuk membalik arah urutan"></button>
         <button type="button" id="btn-select-mode" class="btn-select-mode" title="Pilih beberapa tugas sekaligus">☑️ Pilih</button>
         <button type="button" id="btn-clear-completed" class="btn-clear-completed">🧹 Hapus yang Selesai</button>
     `;
@@ -119,16 +150,21 @@ document.addEventListener('DOMContentLoaded', function () {
     listContainer.parentNode.insertBefore(bulkBar, listContainer);
 
     const searchInput = toolbar.querySelector('#task-search');
+    const categoryFilterSelect = toolbar.querySelector('#task-category-filter');
     const sortSelect = toolbar.querySelector('#task-sort');
+    const sortDirectionBtn = toolbar.querySelector('#btn-sort-direction');
     const selectModeBtn = toolbar.querySelector('#btn-select-mode');
     const clearCompletedBtn = toolbar.querySelector('#btn-clear-completed');
 
     let searchQuery = '';
+    let categoryFilter = '';
     let sortMode = 'date';
+    let sortDirection = 'asc';
     let editingTaskId = null;
 
     let selectionMode = false;
     let selectedIds = new Set();
+    let expandedDescIds = new Set();
     let scrollTargetId = null;
     let pulseId = null;
     let lastKnownIds = new Set();
@@ -138,8 +174,26 @@ document.addEventListener('DOMContentLoaded', function () {
         window.renderTaskList();
     });
 
+    categoryFilterSelect.addEventListener('change', function () {
+        categoryFilter = this.value;
+        window.renderTaskList();
+    });
+
+    function updateSortDirectionLabel() {
+        const meta = SORT_DIRECTION_LABELS[sortMode] || SORT_DIRECTION_LABELS.date;
+        sortDirectionBtn.textContent = meta[sortDirection];
+    }
+    updateSortDirectionLabel();
+
     sortSelect.addEventListener('change', function () {
         sortMode = this.value;
+        updateSortDirectionLabel();
+        window.renderTaskList();
+    });
+
+    sortDirectionBtn.addEventListener('click', function () {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        updateSortDirectionLabel();
         window.renderTaskList();
     });
 
@@ -315,9 +369,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (dateInfo.diff === 1 && !task.completed) badgeClass += ' due-tomorrow';
 
         const isSelected = selectedIds.has(task.id);
+        const priorityMeta = PRIORITY_META[task.priority] || null;
+        const store = window.AppStore;
+        const isDescExpanded = expandedDescIds.has(task.id);
 
         const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''} ${task.pinned ? 'pinned' : ''}`.trim();
+        li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''} ${isDescExpanded ? 'desc-expanded' : ''}`.trim();
         li.setAttribute('data-id', task.id);
 
         li.innerHTML = `
@@ -325,12 +382,19 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="checkbox" data-action="toggle" data-id="${task.id}">${task.completed ? '●' : '○'}</span>
             <div class="task-details" data-action="toggle" data-id="${task.id}">
                 <span class="task-name" data-action="edit" data-id="${task.id}" title="Klik untuk edit tugas">${highlightMatch(task.title, searchQuery)}</span>
-                ${task.desc ? `<span class="task-meta">${highlightMatch(task.desc, searchQuery)}</span>` : ''}
+                ${task.desc ? `
+                <span class="task-meta${isDescExpanded ? '' : ' desc-clamped'}" data-desc-id="${task.id}">${highlightMatch(task.desc, searchQuery)}</span>
+                <button type="button" class="task-desc-toggle" data-action="toggle-desc" data-id="${task.id}">${isDescExpanded ? '▲ Sembunyikan' : '▼ Selengkapnya'}</button>
+                ` : ''}
+                <div class="task-tags">
+                    ${priorityMeta ? `<span class="task-priority-tag ${priorityMeta.className}"><span class="priority-dot"></span>${priorityMeta.label}</span>` : ''}
+                    ${task.category ? `<span class="task-category-tag">${store.escapeHTML(task.category)}</span>` : ''}
+                </div>
                 <span class="${badgeClass}">📅 ${dateLabel}</span>
             </div>
             ${selectionMode ? '' : `
             <div class="task-actions">
-                <button type="button" class="pin-btn ${task.pinned ? 'active' : ''}" data-action="pin" data-id="${task.id}" title="${task.pinned ? 'Lepas pin' : 'Pin tugas ini'}">📌</button>
+                <button type="button" class="edit-btn" data-action="edit" data-id="${task.id}" title="Edit tugas ini">✏️ Edit</button>
                 <button type="button" class="delete-btn" data-action="delete" data-id="${task.id}">Hapus</button>
             </div>`}
         `;
@@ -342,28 +406,57 @@ document.addEventListener('DOMContentLoaded', function () {
         const li = document.createElement('li');
         li.className = 'task-item task-item-editing';
         li.setAttribute('data-id', task.id);
+
+        const categoryOptions = CATEGORIES.map(cat =>
+            `<option value="${cat}" ${task.category === cat ? 'selected' : ''}>${cat}</option>`
+        ).join('');
+
+        const priorityPills = Object.entries(PRIORITY_META).map(([value, meta]) => `
+            <button type="button" class="priority-pill ${meta.className} ${task.priority === value ? 'active' : ''}" data-action="edit-select-priority" data-id="${task.id}" data-priority="${value}">
+                <span class="priority-dot"></span>${meta.label}
+            </button>
+        `).join('');
+
         li.innerHTML = `
             <div class="task-edit-row">
-                <input type="text" class="task-edit-input edit-title" value="${store.escapeHTML(task.title)}" placeholder="Judul tugas">
-                <input type="text" class="task-edit-input edit-desc" value="${store.escapeHTML(task.desc || '')}" placeholder="Deskripsi (opsional)">
-                <input type="date" class="task-edit-input edit-date" value="${task.date}">
+                <input type="text" class="task-edit-input edit-title" value="${store.escapeHTML(task.title)}" placeholder="Judul tugas" maxlength="${EDIT_MAX_TITLE_LENGTH}">
+                <textarea class="task-edit-input edit-desc" rows="1" placeholder="Deskripsi (opsional)" maxlength="${EDIT_MAX_DESC_LENGTH}">${store.escapeHTML(task.desc || '')}</textarea>
+                <div class="edit-meta-row">
+                    <input type="date" class="task-edit-input edit-date" value="${task.date}">
+                    <select class="edit-category task-category-select">${categoryOptions}</select>
+                </div>
+                <div class="priority-row">
+                    <span class="priority-label">Prioritas:</span>
+                    <div class="priority-options">${priorityPills}</div>
+                </div>
                 <div class="task-edit-actions">
                     <button type="button" class="btn-edit-cancel" data-action="edit-cancel" data-id="${task.id}">Batal</button>
                     <button type="button" class="btn-edit-save" data-action="edit-save" data-id="${task.id}">Simpan</button>
                 </div>
             </div>
         `;
+
+        const descTextarea = li.querySelector('.edit-desc');
+        if (descTextarea) {
+            const autoGrow = () => {
+                descTextarea.style.height = 'auto';
+                descTextarea.style.height = descTextarea.scrollHeight + 'px';
+            };
+            descTextarea.addEventListener('input', autoGrow);
+            requestAnimationFrame(autoGrow);
+        }
+
         return li;
     }
 
-    function buildGroups(tasks, todayStr, mode) {
+    function buildGroups(tasks, todayStr, mode, direction) {
         const buckets = [
             { label: '⚠️ Terlambat', tasks: tasks.filter(t => window.TaskFilters.isOverdue(t, todayStr)) },
             { label: `📅 Hari Ini • ${formatIndoDate(todayStr)}`, tasks: tasks.filter(t => window.TaskFilters.isToday(t, todayStr)) },
             { label: '🗓️ Mendatang', tasks: tasks.filter(t => window.TaskFilters.isUpcoming(t, todayStr)) },
             { label: '👌 Selesai', tasks: tasks.filter(t => window.TaskFilters.isDone(t)) }
         ];
-        buckets.forEach(b => { b.tasks = window.TaskFilters.applySort(b.tasks, mode); });
+        buckets.forEach(b => { b.tasks = window.TaskFilters.applySort(b.tasks, mode, direction); });
         return buckets.filter(b => b.tasks.length > 0);
     }
 
@@ -379,6 +472,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (stays && searchQuery) {
             stays = task.title.toLowerCase().includes(searchQuery);
         }
+        if (stays && categoryFilter) {
+            stays = task.category === categoryFilter;
+        }
         return stays;
     }
 
@@ -391,6 +487,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let base = window.TaskFilters.getByView(store.tasks, store.currentView, todayStr);
         if (searchQuery) base = base.filter(t => t.title.toLowerCase().includes(searchQuery));
+        if (categoryFilter) base = base.filter(t => t.category === categoryFilter);
 
         const label = viewLabels[store.currentView] || viewLabels['all'];
         if (sectionIcon) sectionIcon.textContent = label.icon;
@@ -414,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const isGroupedView = (store.currentView === 'add-task' || store.currentView === 'all');
 
         if (isGroupedView) {
-            buildGroups(base, todayStr, sortMode).forEach(group => {
+            buildGroups(base, todayStr, sortMode, sortDirection).forEach(group => {
                 const header = document.createElement('li');
                 header.className = 'group-header';
                 header.textContent = `${group.label} (${group.tasks.length})`;
@@ -422,12 +519,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 group.tasks.forEach(task => listContainer.appendChild(createTaskElement(task, todayStr)));
             });
         } else {
-            window.TaskFilters.applySort(base, sortMode).forEach(task => {
+            window.TaskFilters.applySort(base, sortMode, sortDirection).forEach(task => {
                 listContainer.appendChild(createTaskElement(task, todayStr));
             });
         }
 
         taskCountDisplay.textContent = base.length;
+    }
+
+    function updateDescToggles() {
+        listContainer.querySelectorAll('.task-meta[data-desc-id]').forEach(el => {
+            const id = el.getAttribute('data-desc-id');
+            const btn = listContainer.querySelector(`.task-desc-toggle[data-id="${id}"]`);
+            if (!btn) return;
+
+            if (expandedDescIds.has(id)) {
+                btn.style.display = 'inline-block';
+                return;
+            }
+
+            const isOverflowing = el.scrollHeight > el.clientHeight + 1;
+            btn.style.display = isOverflowing ? 'inline-block' : 'none';
+        });
     }
 
     function performRender() {
@@ -439,6 +552,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         buildList();
+        updateDescToggles();
 
         listContainer.querySelectorAll('.task-item[data-id]').forEach(el => {
             if (el.classList.contains('task-item-editing')) return;
@@ -523,6 +637,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
             window.renderTaskList();
 
+        } else if (action === 'toggle-desc') {
+            if (expandedDescIds.has(id)) expandedDescIds.delete(id); else expandedDescIds.add(id);
+            window.renderTaskList();
+
         } else if (action === 'toggle') {
             const task = store.tasks.find(t => t.id === id);
             if (!task) return;
@@ -560,11 +678,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 doDelete();
             }
 
-        } else if (action === 'pin') {
-            const task = store.tasks.find(t => t.id === id);
-            if (task) task.pinned = !task.pinned;
-            store.saveAndSync();
-
         } else if (action === 'edit') {
             editingTaskId = id;
             window.renderTaskList();
@@ -573,6 +686,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (input) { input.focus(); input.select(); }
             });
 
+        } else if (action === 'edit-select-priority') {
+            if (!li) return;
+            li.querySelectorAll('.priority-options .priority-pill').forEach(p => p.classList.remove('active'));
+            target.classList.add('active');
+
         } else if (action === 'edit-cancel') {
             editingTaskId = null;
             window.renderTaskList();
@@ -580,9 +698,12 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (action === 'edit-save') {
             const task = store.tasks.find(t => t.id === id);
             if (!task || !li) return;
-            const newTitle = li.querySelector('.edit-title').value.trim();
-            const newDesc = li.querySelector('.edit-desc').value.trim();
+            const newTitle = li.querySelector('.edit-title').value.trim().slice(0, EDIT_MAX_TITLE_LENGTH);
+            const newDesc = li.querySelector('.edit-desc').value.trim().slice(0, EDIT_MAX_DESC_LENGTH);
             const newDate = li.querySelector('.edit-date').value || todayStr;
+            const newCategory = li.querySelector('.edit-category').value;
+            const activePriorityPill = li.querySelector('.priority-options .priority-pill.active');
+            const newPriority = activePriorityPill ? activePriorityPill.getAttribute('data-priority') : task.priority;
 
             if (!newTitle) {
                 showAlertDialog('Judul tugas tidak boleh kosong!');
@@ -592,6 +713,8 @@ document.addEventListener('DOMContentLoaded', function () {
             task.title = newTitle;
             task.desc = newDesc;
             task.date = newDate;
+            task.category = newCategory;
+            task.priority = newPriority;
             editingTaskId = null;
             scrollTargetId = task.id;
             store.saveAndSync();
@@ -599,11 +722,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     listContainer.addEventListener('keydown', function (e) {
-        if (!e.target.classList.contains('task-edit-input')) return;
-        const li = e.target.closest('.task-item');
+        const li = e.target.closest('.task-item-editing');
         if (!li) return;
 
-        if (e.key === 'Enter') {
+        const isDescTextarea = e.target.classList.contains('edit-desc');
+
+        if (e.key === 'Enter' && e.target.classList.contains('task-edit-input')) {
+            if (isDescTextarea && !(e.ctrlKey || e.metaKey)) return; // Enter di deskripsi = baris baru, bukan simpan
             e.preventDefault();
             const saveBtn = li.querySelector('[data-action="edit-save"]');
             if (saveBtn) saveBtn.click();
