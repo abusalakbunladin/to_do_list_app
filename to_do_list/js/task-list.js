@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 case 'today': return tasks.filter(t => this.isToday(t, todayStr));
                 case 'upcoming': return tasks.filter(t => this.isUpcoming(t, todayStr));
                 case 'done': return tasks.filter(t => this.isDone(t));
-                default: return tasks.slice(); // 'add-task' & 'all'
+                default: return tasks.slice();
             }
         },
 
@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         applySort: function (tasks, mode) {
             let arr = [...tasks];
+
             switch (mode) {
                 case 'name':
                     arr.sort((a, b) => a.title.localeCompare(b.title, 'id', { sensitivity: 'base' }));
@@ -48,6 +49,31 @@ document.addEventListener('DOMContentLoaded', function () {
         'all': { icon: '📂', text: 'Semua Tugas' }
     };
 
+    const MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    function formatIndoDate(dateStr) {
+        const d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d.getTime())) return dateStr;
+        return `${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function daysBetween(dateStr, todayStr) {
+        const d1 = new Date(dateStr + 'T00:00:00');
+        const d2 = new Date(todayStr + 'T00:00:00');
+        return Math.round((d1 - d2) / 86400000);
+    }
+
+    function getDateInfo(task, todayStr) {
+        const diff = daysBetween(task.date, todayStr);
+        const formatted = formatIndoDate(task.date);
+        let label;
+        if (diff === 0) label = `Hari ini • ${formatted}`;
+        else if (diff === 1) label = `Besok • ${formatted}`;
+        else if (diff === -1) label = `Kemarin • ${formatted}`;
+        else if (diff > 1) label = `${diff} hari lagi • ${formatted}`;
+        else label = `Terlambat ${Math.abs(diff)} hari • ${formatted}`;
+        return { diff, label, formatted };
+    }
 
     function generateTaskId() {
         return 't_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
@@ -74,16 +100,38 @@ document.addEventListener('DOMContentLoaded', function () {
             <option value="name">🔤 Nama A-Z</option>
             <option value="priority">📌 Prioritas</option>
         </select>
+        <button type="button" id="btn-select-mode" class="btn-select-mode" title="Pilih beberapa tugas sekaligus">☑️ Pilih</button>
         <button type="button" id="btn-clear-completed" class="btn-clear-completed">🧹 Hapus yang Selesai</button>
     `;
     listContainer.parentNode.insertBefore(toolbar, listContainer);
 
+    const bulkBar = document.createElement('div');
+    bulkBar.className = 'bulk-bar';
+    bulkBar.id = 'bulk-bar';
+    bulkBar.innerHTML = `
+        <span class="bulk-bar-count" id="bulk-bar-count">0 dipilih</span>
+        <div class="bulk-bar-actions">
+            <button type="button" id="btn-bulk-complete" class="bulk-bar-btn bulk-complete">✅ Selesaikan</button>
+            <button type="button" id="btn-bulk-delete" class="bulk-bar-btn bulk-delete">🗑️ Hapus</button>
+            <button type="button" id="btn-bulk-cancel" class="bulk-bar-btn bulk-cancel">✖ Batal</button>
+        </div>
+    `;
+    listContainer.parentNode.insertBefore(bulkBar, listContainer);
+
     const searchInput = toolbar.querySelector('#task-search');
     const sortSelect = toolbar.querySelector('#task-sort');
+    const selectModeBtn = toolbar.querySelector('#btn-select-mode');
     const clearCompletedBtn = toolbar.querySelector('#btn-clear-completed');
+
     let searchQuery = '';
     let sortMode = 'date';
     let editingTaskId = null;
+
+    let selectionMode = false;
+    let selectedIds = new Set();
+    let scrollTargetId = null;
+    let pulseId = null;
+    let lastKnownIds = new Set();
 
     searchInput.addEventListener('input', function () {
         searchQuery = this.value.trim().toLowerCase();
@@ -93,6 +141,50 @@ document.addEventListener('DOMContentLoaded', function () {
     sortSelect.addEventListener('change', function () {
         sortMode = this.value;
         window.renderTaskList();
+    });
+
+    selectModeBtn.addEventListener('click', function () {
+        selectionMode = !selectionMode;
+        selectedIds.clear();
+        this.classList.toggle('active', selectionMode);
+        this.textContent = selectionMode ? '✖️ Batal Pilih' : '☑️ Pilih';
+        window.renderTaskList();
+    });
+
+    function updateBulkBar() {
+        const countEl = document.getElementById('bulk-bar-count');
+        if (countEl) countEl.textContent = `${selectedIds.size} dipilih`;
+        bulkBar.classList.toggle('show', selectionMode && selectedIds.size > 0);
+    }
+
+    bulkBar.querySelector('#btn-bulk-cancel').addEventListener('click', function () {
+        selectedIds.clear();
+        window.renderTaskList();
+    });
+
+    bulkBar.querySelector('#btn-bulk-complete').addEventListener('click', function () {
+        if (selectedIds.size === 0) return;
+        const store = window.AppStore;
+        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.completed = true; });
+        selectedIds.clear();
+        store.saveAndSync();
+    });
+
+    bulkBar.querySelector('#btn-bulk-delete').addEventListener('click', function () {
+        const count = selectedIds.size;
+        if (count === 0) return;
+        showConfirmDialog(
+            `Yakin ingin menghapus ${count} tugas terpilih? Kamu masih bisa membatalkannya lewat tombol Undo sesudahnya.`,
+            function () {
+                const store = window.AppStore;
+                const removed = [];
+                store.tasks.forEach((t, idx) => { if (selectedIds.has(t.id)) removed.push({ task: t, index: idx }); });
+                store.tasks = store.tasks.filter(t => !selectedIds.has(t.id));
+                selectedIds.clear();
+                showUndoToast(removed, `🗑️ ${removed.length} tugas dihapus.`);
+                store.saveAndSync();
+            }
+        );
     });
 
 
@@ -140,8 +232,57 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    // Menyorot setiap kemunculan kata kunci pencarian di dalam sebuah teks.
-    // Hasil akhirnya selalu di-escape HTML; hanya bagian yang cocok yang dibungkus <mark>.
+    function showConfirmDialog(message, onConfirm) {
+        const overlay = document.createElement('div');
+        overlay.className = 'tl-dialog-overlay';
+        overlay.innerHTML = `
+            <div class="tl-dialog-box">
+                <p class="tl-dialog-message">${window.AppStore.escapeHTML(message)}</p>
+                <div class="tl-dialog-actions">
+                    <button type="button" class="tl-dialog-btn tl-dialog-cancel">Batal</button>
+                    <button type="button" class="tl-dialog-btn tl-dialog-confirm">Ya, Lanjutkan</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('show'));
+
+        function close() {
+            overlay.classList.remove('show');
+            setTimeout(() => overlay.remove(), 180);
+        }
+
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        overlay.querySelector('.tl-dialog-cancel').addEventListener('click', close);
+        overlay.querySelector('.tl-dialog-confirm').addEventListener('click', () => {
+            close();
+            onConfirm();
+        });
+    }
+
+    function showAlertDialog(message) {
+        const overlay = document.createElement('div');
+        overlay.className = 'tl-dialog-overlay';
+        overlay.innerHTML = `
+            <div class="tl-dialog-box">
+                <p class="tl-dialog-message">${window.AppStore.escapeHTML(message)}</p>
+                <div class="tl-dialog-actions">
+                    <button type="button" class="tl-dialog-btn tl-dialog-confirm">Oke</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('show'));
+
+        function close() {
+            overlay.classList.remove('show');
+            setTimeout(() => overlay.remove(), 180);
+        }
+
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        overlay.querySelector('.tl-dialog-confirm').addEventListener('click', close);
+    }
+
     function highlightMatch(text, query) {
         const store = window.AppStore;
         const safeText = text || '';
@@ -161,33 +302,37 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function createTaskElement(task, todayStr) {
-        const store = window.AppStore;
-
         if (editingTaskId === task.id) {
             return createEditRow(task);
         }
 
         const overdue = window.TaskFilters.isOverdue(task, todayStr);
+        const dateInfo = getDateInfo(task, todayStr);
+        let dateLabel = dateInfo.label;
+        if (overdue) dateLabel = `⚠️ ${dateLabel}`;
 
-        let dateLabel = task.date;
-        if (task.date === todayStr) dateLabel = 'Hari ini';
-        else if (overdue) dateLabel = `⚠️ Terlambat (${task.date})`;
+        let badgeClass = 'task-date-badge';
+        if (dateInfo.diff === 1 && !task.completed) badgeClass += ' due-tomorrow';
+
+        const isSelected = selectedIds.has(task.id);
 
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''} ${task.pinned ? 'pinned' : ''}`.trim();
         li.setAttribute('data-id', task.id);
 
         li.innerHTML = `
+            ${selectionMode ? `<span class="bulk-select-box" data-action="bulk-select" data-id="${task.id}">${isSelected ? '☑' : '☐'}</span>` : ''}
             <span class="checkbox" data-action="toggle" data-id="${task.id}">${task.completed ? '●' : '○'}</span>
             <div class="task-details" data-action="toggle" data-id="${task.id}">
                 <span class="task-name" data-action="edit" data-id="${task.id}" title="Klik untuk edit tugas">${highlightMatch(task.title, searchQuery)}</span>
                 ${task.desc ? `<span class="task-meta">${highlightMatch(task.desc, searchQuery)}</span>` : ''}
-                <span class="task-date-badge">📅 ${dateLabel}</span>
+                <span class="${badgeClass}">📅 ${dateLabel}</span>
             </div>
+            ${selectionMode ? '' : `
             <div class="task-actions">
                 <button type="button" class="pin-btn ${task.pinned ? 'active' : ''}" data-action="pin" data-id="${task.id}" title="${task.pinned ? 'Lepas pin' : 'Pin tugas ini'}">📌</button>
                 <button type="button" class="delete-btn" data-action="delete" data-id="${task.id}">Hapus</button>
-            </div>
+            </div>`}
         `;
         return li;
     }
@@ -214,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function buildGroups(tasks, todayStr, mode) {
         const buckets = [
             { label: '⚠️ Terlambat', tasks: tasks.filter(t => window.TaskFilters.isOverdue(t, todayStr)) },
-            { label: '📅 Hari Ini', tasks: tasks.filter(t => window.TaskFilters.isToday(t, todayStr)) },
+            { label: `📅 Hari Ini • ${formatIndoDate(todayStr)}`, tasks: tasks.filter(t => window.TaskFilters.isToday(t, todayStr)) },
             { label: '🗓️ Mendatang', tasks: tasks.filter(t => window.TaskFilters.isUpcoming(t, todayStr)) },
             { label: '👌 Selesai', tasks: tasks.filter(t => window.TaskFilters.isDone(t)) }
         ];
@@ -222,9 +367,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return buckets.filter(b => b.tasks.length > 0);
     }
 
-    // Mengecek apakah `task` (setelah statusnya berubah) masih akan tampil
-    // di view yang sedang aktif. Dipakai untuk memutuskan apakah toggle selesai
-    // perlu animasi "keluar" dulu sebelum datanya benar-benar diubah.
     function willRemainInView(task, todayStr) {
         const view = window.AppStore.currentView;
         let stays;
@@ -232,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function () {
             case 'today': stays = window.TaskFilters.isToday(task, todayStr); break;
             case 'upcoming': stays = window.TaskFilters.isUpcoming(task, todayStr); break;
             case 'done': stays = window.TaskFilters.isDone(task); break;
-            default: stays = true; // 'add-task' & 'all' selalu menampilkan semua tugas
+            default: stays = true;
         }
         if (stays && searchQuery) {
             stays = task.title.toLowerCase().includes(searchQuery);
@@ -252,7 +394,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const label = viewLabels[store.currentView] || viewLabels['all'];
         if (sectionIcon) sectionIcon.textContent = label.icon;
-        if (sectionText) sectionText.textContent = label.text;
+        if (sectionText) {
+            sectionText.textContent = (store.currentView === 'today')
+                ? `${label.text} • ${formatIndoDate(todayStr)}`
+                : label.text;
+        }
 
         listContainer.innerHTML = '';
 
@@ -318,10 +464,42 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         });
+
+        if (pulseId) {
+            const cb = listContainer.querySelector(`.task-item[data-id="${pulseId}"] .checkbox`);
+            if (cb) {
+                cb.classList.add('checkbox-pop');
+                cb.addEventListener('animationend', () => cb.classList.remove('checkbox-pop'), { once: true });
+            }
+            pulseId = null;
+        }
+
+        if (scrollTargetId) {
+            const targetEl = listContainer.querySelector(`.task-item[data-id="${scrollTargetId}"]`);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetEl.classList.add('task-highlight');
+                setTimeout(() => targetEl.classList.remove('task-highlight'), 1200);
+            }
+            scrollTargetId = null;
+        }
+
+        updateBulkBar();
     }
 
     window.renderTaskList = function () {
         ensureTaskIds();
+
+        const store = window.AppStore;
+        const currentIds = store.tasks.map(t => t.id);
+        if (lastKnownIds.size > 0) {
+            const newlyAdded = currentIds.filter(id => !lastKnownIds.has(id));
+            if (newlyAdded.length >= 1) {
+                scrollTargetId = newlyAdded[newlyAdded.length - 1];
+            }
+        }
+        lastKnownIds = new Set(currentIds);
+
         performRender();
     };
 
@@ -335,13 +513,27 @@ document.addEventListener('DOMContentLoaded', function () {
         const li = target.closest('.task-item');
         const todayStr = store.getTodayString();
 
-        if (action === 'toggle') {
+        if (selectionMode && (action === 'toggle' || action === 'edit')) {
+            if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+            window.renderTaskList();
+            return;
+        }
+
+        if (action === 'bulk-select') {
+            if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+            window.renderTaskList();
+
+        } else if (action === 'toggle') {
             const task = store.tasks.find(t => t.id === id);
             if (!task) return;
-            const wouldStay = willRemainInView({ ...task, completed: !task.completed }, todayStr);
+            const willBeCompleted = !task.completed;
+            const wouldStay = willRemainInView({ ...task, completed: willBeCompleted }, todayStr);
 
             const applyToggle = () => {
-                task.completed = !task.completed;
+                task.completed = willBeCompleted;
+                if (willBeCompleted) {
+                    pulseId = task.id;
+                }
                 store.saveAndSync();
             };
 
@@ -393,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const newDate = li.querySelector('.edit-date').value || todayStr;
 
             if (!newTitle) {
-                alert('Judul tugas tidak boleh kosong!');
+                showAlertDialog('Judul tugas tidak boleh kosong!');
                 return;
             }
 
@@ -401,6 +593,7 @@ document.addEventListener('DOMContentLoaded', function () {
             task.desc = newDesc;
             task.date = newDate;
             editingTaskId = null;
+            scrollTargetId = task.id;
             store.saveAndSync();
         }
     });
