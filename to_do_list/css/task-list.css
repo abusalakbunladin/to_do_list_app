@@ -50,6 +50,33 @@
 }
 .task-sort-select:focus { border-color: var(--primary-red); }
 
+.task-category-filter-select {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    background: white;
+    color: var(--text-main);
+    outline: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.task-category-filter-select:focus { border-color: var(--primary-red); }
+
+.btn-sort-direction {
+    border: 1px solid var(--border-color);
+    background: white;
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+.btn-sort-direction:hover { background: var(--hover-bg); }
+
 .btn-clear-completed {
     border: none;
     background: #fff1f0;
@@ -90,9 +117,10 @@
                 margin 220ms ease, padding 220ms ease, border-color 220ms ease;
 }
 
-.task-item.pinned {
-    border-left: 3px solid #d48806;
-    background: #fffdf5;
+/* Saat deskripsi tugas sedang diperluas (Selengkapnya), lepaskan batas tinggi
+   supaya teks panjang tidak terpotong/menembus keluar kartu tugas. */
+.task-item.desc-expanded {
+    max-height: none;
 }
 
 .task-item.task-enter {
@@ -113,12 +141,92 @@
 }
 
 .checkbox { display: inline-block; cursor: pointer; margin-right: 12px; font-size: 18px; user-select: none; }
-.task-details { display: flex; flex-direction: column; flex-grow: 1; cursor: pointer; }
-.task-name { font-size: 14px; font-weight: 500; }
+.task-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0; /* penting: agar item flex ini boleh menyusut & membungkus teks, bukan mendorong lebar kartu */
+    cursor: pointer;
+}
+.task-name {
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
 .task-name[data-action="edit"] { cursor: pointer; }
 .task-name[data-action="edit"]:hover { text-decoration: underline dotted; }
 .task-name[data-action="edit"]:hover::after { content: " ✏️"; opacity: 0.6; font-size: 11px; }
-.task-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.task-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+/* Deskripsi tugas dipotong maksimal 3 baris, dengan tombol "Selengkapnya" untuk membuka penuh */
+.task-meta.desc-clamped {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+.task-desc-toggle {
+    display: none;
+    align-self: flex-start;
+    margin-top: 4px;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-red);
+    cursor: pointer;
+}
+.task-desc-toggle:hover { color: var(--primary-red-hover); text-decoration: underline; }
+.task-desc-toggle:focus-visible { outline: 2px solid var(--primary-red); outline-offset: 2px; border-radius: 3px; }
+
+.task-tags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.task-priority-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+}
+.task-priority-tag .priority-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+.task-priority-tag.priority-high { background: #fff1f0; color: #cf1322; border-color: #ffb3b3; }
+.task-priority-tag.priority-high .priority-dot { background: #ff4d4f; }
+.task-priority-tag.priority-medium { background: #fffbe6; color: #d46b08; border-color: #ffe08a; }
+.task-priority-tag.priority-medium .priority-dot { background: #ffc107; }
+.task-priority-tag.priority-low { background: #f1faf3; color: #058527; border-color: #a7dab3; }
+.task-priority-tag.priority-low .priority-dot { background: #058527; }
+
+.task-category-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 10px;
+    background: #eef1ff;
+    color: var(--primary-red);
+    border: 1px solid var(--border-color);
+}
 
 mark.search-highlight {
     background-color: #ffe58f;
@@ -157,22 +265,18 @@ mark.search-highlight {
 .task-actions {
     display: flex;
     align-items: center;
-    gap: 2px;
+    align-self: flex-start;
+    flex-shrink: 0;
+    gap: 4px;
     margin-left: 8px;
 }
 
-.pin-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px 6px;
-    border-radius: 4px;
-    opacity: 0.35;
-    transition: opacity var(--transition-fast), transform var(--transition-fast), background-color var(--transition-fast);
+.edit-btn {
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 4px;
+    transition: color var(--transition-fast), background-color var(--transition-fast);
 }
-.pin-btn:hover { opacity: 0.8; background: #fff7e6; }
-.pin-btn.active { opacity: 1; transform: scale(1.15); background: #fff7e6; }
+.edit-btn:hover { color: var(--primary-red); background: var(--hover-bg); }
 
 .delete-btn {
     background: none; border: none; color: #b3b3b3;
@@ -198,6 +302,26 @@ mark.search-highlight {
     background: #fbfdff;
 }
 .task-edit-input:focus { border-color: var(--primary-red); background: white; }
+
+textarea.task-edit-input.edit-desc {
+    resize: none;
+    overflow-y: auto;
+    min-height: 38px;
+    max-height: 260px;
+    line-height: 1.5;
+    font-family: inherit;
+}
+
+.edit-meta-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.edit-meta-row .edit-date { flex: 1 1 140px; width: auto; }
+.edit-meta-row .edit-category { flex: 1 1 160px; margin: 0; }
+
+.task-item-editing .priority-row { margin-bottom: 0; }
+
 .task-edit-actions {
     display: flex;
     justify-content: flex-end;
