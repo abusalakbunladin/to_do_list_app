@@ -164,3 +164,4 @@ taskDescInput.addEventListener('keypress', e => { if (e.key === 'Enter') addTask
 
 setDefaultDate();
 renderTasks();
+}
