@@ -89,22 +89,44 @@
         </main>
     </div>
 
-    <div class="modal-overlay" id="modal-help">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h2>❓ Help & Resources</h2>
-                <button class="close-modal">&times;</button>
+    <div class="modal-overlay" id="modal-help" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h2 id="help-modal-title">❓ Help & Resources</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                
+                    <p>Selamat datang di aplikasi <strong>To Do List</strong> Kelompok! Berikut panduannya:</p>
+                    <div class="help-section">
+                        <h4>📌 Navigasi Menu</h4>
+                        <ul>
+                            <div class="modal-body">
+                                <li><strong>Add Task:</strong> Menambahkan tugas baru di menu Add Task.</li>
+                                <li><strong>Today:</strong> Menampilkan tugas hari ini yang belum diselesaikan.</li>
+                                <li><strong>Upcoming:</strong> Menampilkan tugas yang akan datang.</li>
+                                <li><strong>Done:</strong> Melihat daftar tugas yang sudah selesai.</li>
+                                <li><strong>All Tasks:</strong> Melihat seluruh tugas.</li>
+                            </div>
+                        </ul>
+                    </div>
+
+                    <div class="help-section">
+                        <h4>🔔 Notifikasi</h4>
+                        <div class="help-legend"> Berisi tugas terlewat atau belum dikerjakan</div>
+                    </div>
+
+                    <div class="help-section">
+                        <h4>💡 Tips Cepat</h4>
+                        <ul>
+                            <div class="modal-body">
+                                <li>Tekan tombol <strong>Esc</strong> untuk menutup jendela popup manapun.</li>
+                                <li>Klik ikon profil untuk melihat progres penyelesaian tugasmu.</li>
+                                <li>Isi tanggal tugas agar muncul otomatis di menu Today/Upcoming.</li>
+                                <li>Jika masih anda belum tahu, maka andanya memang <strong>PINTAR</strong>.</li>
+                            </div>
+                        </ul>
+                    </div>
             </div>
-            <div class="modal-body">
-                <p>Selamat datang di aplikasi To-Do List Kelompok! Berikut panduannya:</p>
-                <ul>
-                    <li><strong>Add Task:</strong> Tambahkan tugas baru di menu Add Task.</li>
-                    <li><strong>Today:</strong> Menampilkan tugas tenggat hari ini yang belum selesai.</li>
-                    <li><strong>Upcoming:</strong> Melihat rencana tugas di hari esok.</li>
-                    <li><strong>Done:</strong> Melihat daftar semua tugas yang sudah dicoret selesai.</li>
-                </ul>
-            </div>
-        </div>
     </div>
 
     <div class="modal-overlay" id="modal-notif">
@@ -118,19 +140,26 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-profile">
+    <div class="modal-overlay" id="modal-profile" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
         <div class="modal-box profile-box">
             <div class="modal-header">
-                <h2>👤 Profil Anggota</h2>
+                <h2 id="profile-modal-title"> Profil Anggota</h2>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body text-center">
                 <div class="profile-avatar">G</div>
                 <h3>Gabung</h3>
-                <p class="profile-email">gabung@workspace.com</p>
+                <p class="profile-email">Gabung@workspace.com</p>
                 <div class="profile-stats">
                     <div><span class="stat-num" id="stat-total">0</span><span class="stat-label">Total Tugas</span></div>
+                    <div><span class="stat-num" id="stat-active">0</span><span class="stat-label">Aktif</span></div>
                     <div><span class="stat-num" id="stat-done">0</span><span class="stat-label">Selesai</span></div>
+                </div>
+                <div class="profile-progress-wrap">
+                    <span class="profile-progress-label" id="profile-progress-label">0% selesai</span>
+                    <div class="profile-progress-track">
+                        <div class="profile-progress-bar" id="profile-progress-bar"></div>
+                    </div>
                 </div>
             </div>
         </div>
