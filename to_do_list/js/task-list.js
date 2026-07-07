@@ -4,13 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const sectionIcon = document.getElementById('section-icon');
     const sectionText = document.getElementById('section-text');
 
-    // ============================================================
-    // TaskFilters — satu-satunya "sumber kebenaran" untuk kategori
-    // tugas (Today / Upcoming / Done / Overdue). Ini inti tanggung
-    // jawab Orang 3 (Data Filtering & List Manager). File lain
-    // (sidebar.js utk counter, modals.js utk notifikasi) tinggal
-    // PAKAI fungsi ini, bukan nulis ulang syarat tanggal sendiri2.
-    // ============================================================
     window.TaskFilters = {
         isOverdue: (task, todayStr) => task.date < todayStr && !task.completed,
         isToday: (task, todayStr) => task.date === todayStr && !task.completed,
@@ -22,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 case 'today': return tasks.filter(t => this.isToday(t, todayStr));
                 case 'upcoming': return tasks.filter(t => this.isUpcoming(t, todayStr));
                 case 'done': return tasks.filter(t => this.isDone(t));
-                default: return tasks.slice(); // 'add-task' & 'all' -> semua tugas
+                default: return tasks.slice();
             }
         },
 
@@ -31,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    // Judul & ikon section ikut berubah sesuai kategori yang lagi dibuka
     const viewLabels = {
         'add-task': { icon: '📋', text: 'Daftar Utama Tugas' },
         'today': { icon: '📅', text: 'Tugas Hari Ini' },
