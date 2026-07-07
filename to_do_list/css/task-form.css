@@ -8,7 +8,6 @@
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/* Sekilas hijau saat tugas berhasil ditambahkan */
 .task-input-container.success-flash {
     border-color: #058527;
     box-shadow: 0 0 0 3px rgba(5, 133, 39, 0.15);
@@ -52,7 +51,6 @@
     background-color: #d9e0ff;
 }
 
-/* State error pada input judul */
 .task-title-input.error { color: #cf1322; }
 
 .task-title-input.shake { animation: shake 0.35s ease; }
@@ -64,7 +62,6 @@
     40%, 60% { transform: translateX(4px); }
 }
 
-/* Baris kecil di bawah judul: pesan error (kiri) & counter karakter (kanan) */
 .title-meta-row {
     display: flex;
     justify-content: space-between;
@@ -108,7 +105,6 @@
 .task-date-input:focus { box-shadow: 0 0 0 2px rgba(5, 133, 39, 0.2); }
 .task-date-input:hover { background-color: #dbf7e2; transition: 0.2s ease-in-out; }
 
-/* Dropdown kategori tugas, ditaruh di sebelah input tanggal */
 .task-category-select {
     border: 1px solid var(--border-color);
     padding: 6px 12px;
@@ -126,7 +122,6 @@
 .task-category-select.shake { animation: shake 0.35s ease; }
 .task-category-select:hover { background-color: #c4d1f7; transition: 0.2s ease-in-out; }
 
-/* Baris pesan error khusus kategori (di bawah tanggal/kategori) */
 .category-error-row { min-height: 16px; margin-bottom: 6px; }
 
 .priority-row {
@@ -192,7 +187,6 @@
 .priority-pill.priority-low.active { background-color: #058527; border-color: #058527; color: white; }
 .priority-pill.priority-low.active .priority-dot { background-color: white; }
 
-/* Baris pesan error khusus prioritas (di bawah pilihan) */
 .priority-error-row { min-height: 16px; margin-bottom: 8px; }
 
 .task-input-controls {
