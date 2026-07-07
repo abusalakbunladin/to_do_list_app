@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let lastFocusedTrigger = null;
 
-    // ------- Badge notifikasi -------
     window.updateNotificationBadge = function() {
         const store = window.AppStore;
         if (!store || !notifBadge) return;
@@ -28,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // ------- Render daftar notifikasi -------
     function renderNotifications() {
         if (!notifList) return;
         notifList.innerHTML = '';
@@ -83,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ------- Statistik profil -------
     function renderProfileStats() {
         const store = window.AppStore;
         if (!store) return;
@@ -106,7 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (progressLabel) progressLabel.textContent = `${percent}% selesai`;
     }
 
-    // ------- Riwayat tugas di profil -------
     let currentHistoryFilter = 'all';
 
     function renderHistoryList() {
@@ -159,7 +155,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ------- Buka / tutup modal -------
     function openModal(modal, triggerEl) {
         lastFocusedTrigger = triggerEl || document.activeElement;
         modal.classList.add('show');
@@ -208,7 +203,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Tutup modal dengan tombol Esc
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const openModalEl = document.querySelector('.modal-overlay.show');
