@@ -19,7 +19,10 @@ let currentView = 'add-task';
 
 function setDefaultDate() {
     const today = new Date().toISOString().split('T')[0];
+    
     taskDateInput.value = today;
+    
+    taskDateInput.setAttribute('min', today);
 }
 
 function getTodayString() {
