@@ -15,6 +15,42 @@
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
     --transition-fast: 0.2s ease-in-out;
+
+    --success-color: #058527;
+    --success-color-rgb: 5, 133, 39;
+    --success-dot: #058527;
+    --success-bg: #f1faf3;
+    --success-border: #a7dab3;
+    --success-bg-strong: #e6f7ec;
+    --success-bg-strong-hover: #ccf0d8;
+
+    --warning-color: #d46b08;
+    --warning-bg: #fffbe6;
+    --warning-border: #ffe08a;
+    --warning-dot: #ffc107;
+
+    --danger-color: #cf1322;
+    --danger-bg: #fff1f0;
+    --danger-bg-soft: #fff0f0;
+    --danger-bg-hover: #ffd6d6;
+    --danger-border: #ffb3b3;
+    --danger-dot: #ff4d4f;
+    --danger-color-strong: red;
+
+    --primary-blue-rgb: 63, 92, 219;
+    --primary-blue-soft-bg: #eef3ff;
+    --category-tag-bg: #eef1ff;
+    --link-color: #7fb3ff;
+
+    --color-white: #ffffff;
+    --edit-input-bg: #fbfdff;
+    --delete-icon-color: #b3b3b3;
+    --highlight-bg: #ffe58f;
+    --highlight-text: #1f1f1f;
+    --overlay-dark-bg: #1f1f1f;
+    --overlay-backdrop: rgba(0, 0, 0, 0.4);
+    --overlay-subtle: rgba(0, 0, 0, 0.05);
+    --overlay-soft: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] {
@@ -30,6 +66,41 @@
     --hover-bg: #202b40;
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.35);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+
+    --success-color: #4ade80;
+    --success-color-rgb: 74, 222, 128;
+    --success-dot: #058527;
+    --success-bg: #123a22;
+    --success-border: #1f5c34;
+    --success-bg-strong: #163c28;
+    --success-bg-strong-hover: #1d4d34;
+
+    --warning-color: #ffb454;
+    --warning-bg: #3a2f0f;
+    --warning-border: #5c4a1a;
+    --warning-dot: #ffc107;
+
+    --danger-color: #ff8a8a;
+    --danger-bg: #3a1616;
+    --danger-bg-soft: #3a1616;
+    --danger-bg-hover: #4a1e1e;
+    --danger-border: #5c2626;
+    --danger-dot: #ff4d4f;
+    --danger-color-strong: #ff5252;
+
+    --primary-blue-rgb: 91, 123, 250;
+    --primary-blue-soft-bg: #1b2540;
+    --category-tag-bg: #1b2540;
+    --link-color: #8fb8ff;
+
+    --edit-input-bg: #202b40;
+    --delete-icon-color: #7a8296;
+    --highlight-bg: #b58a1f;
+    --highlight-text: #fff3d6;
+    --overlay-dark-bg: #05070c;
+    --overlay-backdrop: rgba(0, 0, 0, 0.6);
+    --overlay-subtle: rgba(255, 255, 255, 0.08);
+    --overlay-soft: rgba(255, 255, 255, 0.1);
 }
 
 * {
