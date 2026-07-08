@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
     titleMetaRow.appendChild(charCounter);
     taskTitleInput.insertAdjacentElement('afterend', titleMetaRow);
 
-    // Baris counter khusus untuk deskripsi
     const descMetaRow = document.createElement('div');
     descMetaRow.className = 'desc-meta-row';
 
@@ -92,6 +91,15 @@ document.addEventListener('DOMContentLoaded', function() {
             pill.classList.toggle('active', pill.dataset.priority === value);
         });
         clearPriorityError();
+        updateContainerPriorityBorder(value);
+    }
+
+    // Ubah warna border kotak form sesuai prioritas yang dipilih
+    function updateContainerPriorityBorder(value) {
+        taskInputBox.classList.remove('priority-border-tinggi', 'priority-border-sedang', 'priority-border-rendah');
+        if (value) {
+            taskInputBox.classList.add(`priority-border-${value}`);
+        }
     }
 
     function showPriorityError(message) {
@@ -125,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
         opt.textContent = cat;
         categorySelect.appendChild(opt);
     });
+
     const leftControls = taskInputBox.querySelector('.left-controls');
     leftControls.appendChild(categorySelect);
 
@@ -222,6 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
         categorySelect.selectedIndex = 0;
         selectedPriority = null;
         priorityOptions.querySelectorAll('.priority-pill').forEach(pill => pill.classList.remove('active'));
+        updateContainerPriorityBorder(null);
         updateCharCounter();
         updateDescCharCounter();
         initDate();
