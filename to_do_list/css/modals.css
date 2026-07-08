@@ -114,3 +114,60 @@ body.modal-open { overflow: hidden; }
 .history-item.is-done .history-title { color: var(--text-muted); text-decoration: line-through; }
 .history-date { font-size: 11px; color: var(--text-muted); }
 .history-empty { text-align: center; padding: 15px; color: var(--text-muted); font-size: 12px; list-style: none; }
+
+.profile-backup {
+    margin-top: 18px;
+    text-align: left;
+    border-top: 1px solid var(--border-color);
+    padding-top: 14px;
+}
+.backup-title {
+    font-size: 13px;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+.backup-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+.backup-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.btn-backup-export,
+.btn-backup-import {
+    flex: 1 1 auto;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 0.1s ease;
+}
+.btn-backup-export:hover,
+.btn-backup-import:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+.btn-backup-export:active,
+.btn-backup-import:active { transform: scale(0.97); }
+.btn-backup-export:focus-visible,
+.btn-backup-import:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.backup-status {
+    min-height: 16px;
+    margin-top: 8px;
+    font-size: 12px;
+}
+.backup-status.is-success { color: var(--success-color); }
+.backup-status.is-error { color: var(--danger-color); }
