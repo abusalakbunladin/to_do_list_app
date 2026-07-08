@@ -8,9 +8,23 @@
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.task-input-container.success-flash {
-    border-color: #04920b;
-    box-shadow: 0 0 30px 20px rgba(4, 122, 20, 0.15);
+.task-input-container.success-flash { background-color: rgba(0, 255, 106, 0.103); transition: 0.2s ease-in-out; border-color: rgb(0, 255, 106); box-shadow: 0 0 30px 20px rgba(0, 255, 106, 0.15); }
+
+.task-input-container.success-flash .task-title-input,
+.task-input-container.success-flash .task-desc-input {
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.task-input-container.cancel-flash {
+    background-color: rgba(255, 0, 0, 0.17);
+    transition: 0.2s ease-in-out;
+    border-color: var(--text-muted);
+    box-shadow: 0 0 25px 15px rgba(255, 0, 0, 0.20);
+}
+
+.task-input-container.cancel-flash .task-title-input,
+.task-input-container.cancel-flash .task-desc-input {
+    background-color: rgba(0, 0, 0, 0.144);
 }
 
 .task-input-container.priority-border-tinggi {
@@ -31,6 +45,7 @@
     border: none;
     outline: none;
     padding: 6px 10px 6px 10px;
+    transition: background-color 0.2s ease-in-out;
 }
 
 .task-title-input { background-color: var(--bg-surface); color: var(--text-main); font-size: 16px; font-weight: 500; border-radius: 4px; }
@@ -346,7 +361,23 @@
 [data-theme="dark"] .task-input-container.priority-border-sedang { border-color: #ffe188; }
 [data-theme="dark"] .task-input-container.priority-border-rendah { border-color: #94faaf; }
 
-[data-theme="dark"] .task-input-container.task-input-container.success-flash { border-color: rgb(142, 185, 250); box-shadow: 0 0 30px 20px rgba(77, 138, 252, 0.15); }
+[data-theme="dark"] .task-input-container.task-input-container.success-flash { background-color: rgba(0, 255, 191, 0.103); transition: 0.2s ease-in-out; border-color: rgb(0, 255, 191); box-shadow: 0 0 30px 20px rgba(0, 255, 191, 0.15); }
+
+[data-theme="dark"] .task-input-container.success-flash .task-title-input,
+[data-theme="dark"] .task-input-container.success-flash .task-desc-input {
+    background-color: rgba(0, 0, 0, 0.171);
+}
+
+[data-theme="dark"] .task-input-container.cancel-flash {
+    background-color: rgba(255, 0, 0, 0.14);
+    border-color: #9aa4b8;
+    box-shadow: 0 0 25px 15px rgba(255, 0, 0, 0.18);
+}
+
+[data-theme="dark"] .task-input-container.cancel-flash .task-title-input,
+[data-theme="dark"] .task-input-container.cancel-flash .task-desc-input {
+    background-color: rgba(154, 164, 184, 0.16);
+}
 
 
 [data-theme="dark"] .task-title-input { outline-color: #1c42ff49; }
