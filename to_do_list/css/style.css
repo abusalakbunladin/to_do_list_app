@@ -1,16 +1,13 @@
 :root {
-    /* Nama variabel di bawah ini peninggalan versi awal (--primary-red),
-       walau warna aslinya biru. --primary-color adalah alias yang lebih
-       akurat, dipakai untuk kode baru. Variabel lama TETAP dipertahankan
-       apa adanya supaya file CSS anggota lain (task-form, task-list,
-       modals) yang masih pakai var(--primary-red) tidak rusak. */
-    --primary-red: #3f5cdb;
-    --primary-red-hover: rgb(41, 43, 196);
-    --primary-color: var(--primary-red);
-    --primary-color-hover: var(--primary-red-hover);
+
+    --primary-blue: #3f5cdb;
+    --primary-blue-hover: rgb(41, 43, 196);
+    --primary-color: var(--primary-blue);
+    --primary-color-hover: var(--primary-blue-hover);
 
     --bg-main: #c9d7f1;
     --bg-sidebar: #95b4e4;
+    --bg-surface: #ffffff; 
     --text-main: #000000;
     --text-muted: #808080;
     --border-color: #acc5eb;
@@ -18,6 +15,21 @@
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
     --transition-fast: 0.2s ease-in-out;
+}
+
+[data-theme="dark"] {
+    --primary-blue: #5b7bfa;
+    --primary-blue-hover: #7d97ff;
+
+    --bg-main: #10151f;
+    --bg-sidebar: #161d2b;
+    --bg-surface: #1c2436;
+    --text-main: #e8ecf5;
+    --text-muted: #9aa4b8;
+    --border-color: #2a3448;
+    --hover-bg: #202b40;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.35);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
 }
 
 * {
@@ -31,12 +43,13 @@ body {
     background-color: var(--bg-main);
     color: var(--text-main);
     line-height: 1.5;
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .app-container {
     display: flex;
     height: 100vh;
-    overflow-x: hidden; /* jaga-jaga saat sidebar mobile animasi masuk/keluar */
+    overflow-x: hidden; 
 }
 
 .content {
@@ -68,9 +81,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* ---------------------------------------------------- */
-/* Responsif                                             */
-/* ---------------------------------------------------- */
 @media (max-width: 768px) {
     .content { padding: 24px 5%; }
     .content-header h1 { font-size: 22px; margin-bottom: 20px; }
@@ -78,4 +88,8 @@ body {
 
 @media (max-width: 480px) {
     .content { padding: 16px 4%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body { transition: none; }
 }
