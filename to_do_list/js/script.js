@@ -1,9 +1,5 @@
 window.AppStore = {
     tasks: (function loadTasks() {
-        // Dulu: JSON.parse(localStorage.getItem('tasks')) || []
-        // Masalahnya: kalau data di localStorage rusak/bukan JSON valid,
-        // JSON.parse() lempar error dan seluruh app langsung crash blank.
-        // Sekarang dibungkus try/catch, fallback ke array kosong.
         try {
             const raw = localStorage.getItem('tasks');
             const parsed = raw ? JSON.parse(raw) : [];
@@ -29,8 +25,6 @@ window.AppStore = {
         try {
             localStorage.setItem('tasks', JSON.stringify(this.tasks));
         } catch (err) {
-            // Contoh kasus nyata: kuota localStorage penuh. Render tetap
-            // dijalankan supaya UI tidak macet, tapi kita kasih tahu di console.
             console.error('Gagal menyimpan tugas ke localStorage.', err);
         }
         if (window.renderTaskList) window.renderTaskList();
@@ -38,3 +32,35 @@ window.AppStore = {
         if (window.updateNotificationBadge) window.updateNotificationBadge();
     }
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = themeToggleBtn ? themeToggleBtn.querySelector('.theme-icon') : null;
+
+    function syncThemeUI() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
+        if (themeToggleBtn) {
+            themeToggleBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+            themeToggleBtn.setAttribute('aria-label', isDark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+        }
+    }
+
+    syncThemeUI(); 
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            try {
+                localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            } catch (err) {
+                console.warn('Gagal menyimpan preferensi tema.', err);
+            }
+            syncThemeUI();
+        });
+    }
+});
