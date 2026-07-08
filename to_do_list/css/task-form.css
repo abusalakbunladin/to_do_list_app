@@ -1,3 +1,37 @@
+/* ===================================================================
+   Variabel warna khusus Orang 2 (Form Input & Validation Engineer)
+
+   Variabel dasar dari Orang 1 (style.css:root) dipakai ulang langsung:
+   --primary-blue, --primary-blue-hover, --text-main, --text-muted,
+   --border-color, --hover-bg, --bg-surface, --shadow-sm.
+
+   Variabel status (sukses/warning/danger + turunan biru) dipakai ulang
+   dari Orang 3 (task-list.css:root): --success-color, --success-border,
+   --success-bg, --success-bg-strong, --success-dot, --success-color-rgb,
+   --warning-color, --warning-border, --warning-bg, --warning-dot,
+   --danger-color, --danger-border, --danger-bg-hover, --danger-dot,
+   --primary-blue-rgb, --primary-blue-soft-bg, --color-white.
+   Ini penting supaya warna pill prioritas SELALU sama persis antara
+   form "+ Add Task" di sini dan baris edit inline milik task-list.js
+   (keduanya memakai class .priority-pill yang sama).
+
+   Variabel di bawah ini melengkapi kebutuhan yang benar-benar khas
+   form saja (belum ada padanannya di file lain).
+   =================================================================== */
+:root {
+    --text-secondary: #555555;
+    --input-focus-bg: #d9e0ff;
+    --category-select-hover-bg: #c4d1f7;
+    --warning-contrast-text: #4a2e00;
+}
+
+[data-theme="dark"] {
+    --text-secondary: #c5cde0;
+    --input-focus-bg: #232f52;
+    --category-select-hover-bg: #2a3d70;
+    --warning-contrast-text: #4a2e00;
+}
+
 .task-input-container {
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -9,8 +43,8 @@
 }
 
 .task-input-container.success-flash {
-    border-color: #058527;
-    box-shadow: 0 0 0 3px rgba(5, 133, 39, 0.15);
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(var(--success-color-rgb), 0.15);
 }
 
 .task-title-input, .task-desc-input {
@@ -18,13 +52,15 @@
     border: none;
     outline: none;
     padding: 6px 10px 6px 10px;
+    background-color: transparent;
+    color: var(--text-main);
 }
 
 .task-title-input { font-size: 16px; font-weight: 500;}
 
 .task-desc-input {
     font-size: 14px;
-    color: #555;
+    color: var(--text-secondary);
     font-family: inherit;
     line-height: 1.5;
     resize: none;
@@ -34,7 +70,7 @@
 
 .task-title-input:hover,
 .task-desc-input:hover {
-    background-color: #e7e7e7;
+    background-color: var(--hover-bg);
     transition: 0.2s ease-in-out;
 
     border-radius: 4px;
@@ -45,13 +81,13 @@
 
 .task-title-input:focus,
 .task-desc-input:focus {
-    box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15);
+    box-shadow: 0 0 0 2px rgba(var(--primary-blue-rgb), 0.15);
     border-radius: 4px;
 
-    background-color: #d9e0ff;
+    background-color: var(--input-focus-bg);
 }
 
-.task-title-input.error { color: #cf1322; }
+.task-title-input.error { color: var(--danger-color); }
 
 .task-title-input.shake { animation: shake 0.35s ease; }
 
@@ -73,7 +109,7 @@
 .error-message {
     display: none;
     font-size: 12px;
-    color: #cf1322;
+    color: var(--danger-color);
 }
 .error-message.show { display: block; }
 
@@ -82,7 +118,7 @@
     color: var(--text-muted);
     margin-left: auto;
 }
-.char-counter.warning { color: #d46b08; font-weight: 600; }
+.char-counter.warning { color: var(--warning-color); font-weight: 600; }
 
 .desc-meta-row {
     display: flex;
@@ -96,14 +132,14 @@
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 13px;
-    color: #058527;
-    background-color: #f1faf3;
+    color: var(--success-color);
+    background-color: var(--success-bg);
     outline: none;
     cursor: pointer;
-    transition: box-shadow 0.2s ease;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
 }
-.task-date-input:focus { box-shadow: 0 0 0 2px rgba(5, 133, 39, 0.2); }
-.task-date-input:hover { background-color: #dbf7e2; transition: 0.2s ease-in-out; transform: scale(1.10); }
+.task-date-input:focus { box-shadow: 0 0 0 2px rgba(var(--success-color-rgb), 0.2); }
+.task-date-input:hover { background-color: var(--success-bg-strong); transition: 0.2s ease-in-out; }
 
 .task-category-select {
     border: 1px solid var(--border-color);
@@ -111,16 +147,16 @@
     border-radius: 6px;
     font-size: 13px;
     color: var(--primary-blue);
-    background-color: #eef1ff;
+    background-color: var(--primary-blue-soft-bg);
     outline: none;
     cursor: pointer;
     margin-left: 10px;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
-.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); }
-.task-category-select.error { border-color: #cf1322; }
+.task-category-select:focus { box-shadow: 0 0 0 2px rgba(var(--primary-blue-rgb), 0.15); }
+.task-category-select.error { border-color: var(--danger-color); }
 .task-category-select.shake { animation: shake 0.35s ease; }
-.task-category-select:hover { background-color: #c4d1f7; transition: 0.2s ease-in-out; transform: scale(1.10); }
+.task-category-select:hover { background-color: var(--category-select-hover-bg); transition: 0.2s ease-in-out; }
 
 .category-error-row { min-height: 16px; margin-bottom: 6px; }
 
@@ -140,7 +176,7 @@
 
 .priority-options {
     display: flex;
-    gap: 15px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
@@ -170,23 +206,30 @@
     transition: background-color 0.2s ease;
 }
 
-.priority-pill.priority-high { border-color: #ffb3b3; color: #cf1322; }
-.priority-pill.priority-high .priority-dot { background-color: #ff4d4f; }
-.priority-pill.priority-high:hover { background-color: #fac9c6; transform: scale(1.10); }
-.priority-pill.priority-high.active { background-color: #ff4d4f; border-color: #ff4d4f; color: white; transform: scale(1.20); }
-.priority-pill.priority-high.active .priority-dot { background-color: white; }
+/* Prioritas Tinggi: memakai token --danger-* milik Orang 3 supaya
+   selaras dengan tag prioritas di daftar tugas */
+.priority-pill.priority-high { border-color: var(--danger-border); color: var(--danger-color); }
+.priority-pill.priority-high .priority-dot { background-color: var(--danger-dot); }
+.priority-pill.priority-high:hover { background-color: var(--danger-bg-hover); }
+.priority-pill.priority-high.active { background-color: var(--danger-dot); border-color: var(--danger-dot); color: var(--color-white); transform: scale(1.15); }
+.priority-pill.priority-high.active .priority-dot { background-color: var(--color-white); }
 
-.priority-pill.priority-medium { border-color: #ffe08a; color: #d46b08; }
-.priority-pill.priority-medium .priority-dot { background-color: #ffc107; }
-.priority-pill.priority-medium:hover { background-color: #fcf3c7; transform: scale(1.10); }
-.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #ffc107; color: #4a2e00; transform: scale(1.20); }
-.priority-pill.priority-medium.active .priority-dot { background-color: #4a2e00; }
+/* Prioritas Sedang: memakai token --warning-* milik Orang 3 */
+.priority-pill.priority-medium { border-color: var(--warning-border); color: var(--warning-color); }
+.priority-pill.priority-medium .priority-dot { background-color: var(--warning-dot); }
+.priority-pill.priority-medium:hover { background-color: var(--warning-bg); }
+.priority-pill.priority-medium.active { background-color: var(--warning-dot); border-color: var(--warning-dot); color: var(--warning-contrast-text); transform: scale(1.15); }
+.priority-pill.priority-medium.active .priority-dot { background-color: var(--warning-contrast-text); }
 
-.priority-pill.priority-low { border-color: #a7dab3; color: #058527; }
-.priority-pill.priority-low .priority-dot { background-color: #058527; }
-.priority-pill.priority-low:hover { background-color: #cffad8; transform: scale(1.10); }
-.priority-pill.priority-low.active { background-color: #058527; border-color: #058527; color: white; transform: scale(1.20); }
-.priority-pill.priority-low.active .priority-dot { background-color: white; }
+/* Prioritas Rendah: memakai token --success-* milik Orang 3.
+   Untuk isian solid saat aktif, pakai --success-dot (hijau tetap,
+   tidak ikut memudar di dark mode) bukan --success-color, supaya
+   kontras teks putih di atasnya tetap terjaga di kedua tema. */
+.priority-pill.priority-low { border-color: var(--success-border); color: var(--success-color); }
+.priority-pill.priority-low .priority-dot { background-color: var(--success-dot); }
+.priority-pill.priority-low:hover { background-color: var(--success-bg-strong); }
+.priority-pill.priority-low.active { background-color: var(--success-dot); border-color: var(--success-dot); color: var(--color-white); transform: scale(1.15); }
+.priority-pill.priority-low.active .priority-dot { background-color: var(--color-white); }
 
 .priority-error-row { min-height: 16px; margin-bottom: 8px; }
 
@@ -211,13 +254,13 @@
     font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
 }
 .action-buttons button:active { transform: scale(0.97); }
 
 .btn-cancel { background: transparent; margin-right: 8px; color: var(--text-main); }
-.btn-cancel:hover { background: rgba(255, 19, 19, 0.897); color: #ffffff; transform: scale(1.20); }
-.btn-submit { background: var(--primary-blue); color: white; }
+.btn-cancel:hover { background: var(--danger-dot); color: var(--color-white); transform: scale(1.20); }
+.btn-submit { background: var(--primary-blue); color: var(--color-white); }
 .btn-submit:hover { background: var(--primary-blue-hover); transform: scale(1.20); }
 .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
