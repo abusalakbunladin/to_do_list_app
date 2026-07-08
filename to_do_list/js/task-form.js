@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateContainerPriorityBorder(value);
     }
 
-    // Ubah warna border kotak form sesuai prioritas yang dipilih
     function updateContainerPriorityBorder(value) {
         taskInputBox.classList.remove('priority-border-tinggi', 'priority-border-sedang', 'priority-border-rendah');
         if (value) {
@@ -222,6 +221,12 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => taskInputBox.classList.remove('success-flash'), 500);
     }
 
+    function flashCancel() {
+        if (!taskInputBox) return;
+        taskInputBox.classList.add('cancel-flash');
+        setTimeout(() => taskInputBox.classList.remove('cancel-flash'), 500);
+    }
+
     function resetForm() {
         taskTitleInput.value = '';
         taskDescInput.value = '';
@@ -294,7 +299,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     btnSubmit.addEventListener('click', handleAddTask);
-    btnCancel.addEventListener('click', resetForm);
+    btnCancel.addEventListener('click', function() {
+        resetForm();
+        flashCancel();
+    });
 
     taskTitleInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
