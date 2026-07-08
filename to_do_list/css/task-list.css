@@ -1,3 +1,51 @@
+/* ===================================================================
+   Variabel warna khusus Orang 3 (Data Filtering & List Manager)
+   Variabel dasar (--primary-blue, --primary-blue-hover, --text-main,
+   --text-muted, --border-color, --hover-bg, --shadow-sm, --shadow-md,
+   --transition-fast) sudah didefinisikan Orang 1 di style.css:root
+   dan dipakai ulang langsung di file ini. Variabel di bawah ini
+   melengkapi palet warna tersebut khusus untuk kebutuhan task-list.
+   =================================================================== */
+:root {
+    /* Hijau: status sukses / prioritas rendah / tugas selesai */
+    --success-color: #058527;
+    --success-bg: #f1faf3;
+    --success-border: #a7dab3;
+    --success-bg-strong: #e6f7ec;
+    --success-bg-strong-hover: #ccf0d8;
+
+    /* Kuning/oranye: status peringatan / prioritas sedang */
+    --warning-color: #d46b08;
+    --warning-bg: #fffbe6;
+    --warning-border: #ffe08a;
+    --warning-dot: #ffc107;
+
+    /* Merah: status bahaya / hapus / prioritas tinggi */
+    --danger-color: #cf1322;
+    --danger-bg: #fff1f0;
+    --danger-bg-soft: #fff0f0;
+    --danger-bg-hover: #ffd6d6;
+    --danger-border: #ffb3b3;
+    --danger-dot: #ff4d4f;
+    --danger-color-strong: red;
+
+    /* Turunan biru, selaras dengan --primary-blue milik Orang 1 */
+    --primary-blue-rgb: 63, 92, 219;
+    --primary-blue-soft-bg: #eef3ff;
+    --category-tag-bg: #eef1ff;
+    --link-color: #7fb3ff;
+
+    /* Netral & permukaan lainnya */
+    --color-white: #ffffff;
+    --edit-input-bg: #fbfdff;
+    --delete-icon-color: #b3b3b3;
+    --highlight-bg: #ffe58f;
+    --overlay-dark-bg: #1f1f1f;
+    --overlay-backdrop: rgba(0, 0, 0, 0.4);
+    --overlay-subtle: rgba(0, 0, 0, 0.05);
+    --overlay-soft: rgba(0, 0, 0, 0.08);
+}
+
 .section-title {
     font-size: 14px;
     font-weight: 600;
@@ -11,7 +59,7 @@
 
 .section-count {
     font-size: 11px;
-    background: rgba(0,0,0,0.08);
+    background: var(--overlay-soft);
     padding: 2px 8px;
     border-radius: 10px;
     margin-left: auto;
@@ -33,7 +81,7 @@
     padding: 8px 10px;
     font-size: 13px;
     outline: none;
-    background: white;
+    background: var(--color-white);
 }
 .task-search-input:focus { border-color: var(--primary-blue); }
 
@@ -42,7 +90,7 @@
     border-radius: 6px;
     padding: 8px 10px;
     font-size: 13px;
-    background: white;
+    background: var(--color-white);
     color: var(--text-main);
     outline: none;
     cursor: pointer;
@@ -55,7 +103,7 @@
     border-radius: 6px;
     padding: 8px 10px;
     font-size: 13px;
-    background: white;
+    background: var(--color-white);
     color: var(--text-main);
     outline: none;
     cursor: pointer;
@@ -65,7 +113,7 @@
 
 .btn-sort-direction {
     border: 1px solid var(--border-color);
-    background: white;
+    background: var(--color-white);
     color: var(--text-main);
     font-size: 12px;
     font-weight: 600;
@@ -79,8 +127,8 @@
 
 .btn-clear-completed {
     border: none;
-    background: #fff1f0;
-    color: #cf1322;
+    background: var(--danger-bg);
+    color: var(--danger-color);
     font-size: 12px;
     font-weight: 600;
     padding: 8px 12px;
@@ -89,7 +137,7 @@
     white-space: nowrap;
     display: none;
 }
-.btn-clear-completed:hover { background: #ffd6d6; }
+.btn-clear-completed:hover { background: var(--danger-bg-hover); }
 
 .tasks { list-style: none; }
 
@@ -108,7 +156,7 @@
     align-items: flex-start;
     padding: 12px 10px;
     border-bottom: 1px solid var(--border-color);
-    background: white;
+    background: var(--color-white);
     margin-bottom: 6px;
     border-radius: 8px;
     box-shadow: var(--shadow-sm);
@@ -178,12 +226,12 @@
 }
 .task-priority-tag .priority-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-.task-priority-tag.priority-high { background: #fff1f0; color: #cf1322; border-color: #ffb3b3; }
-.task-priority-tag.priority-high .priority-dot { background: #ff4d4f; }
-.task-priority-tag.priority-medium { background: #fffbe6; color: #d46b08; border-color: #ffe08a; }
-.task-priority-tag.priority-medium .priority-dot { background: #ffc107; }
-.task-priority-tag.priority-low { background: #f1faf3; color: #058527; border-color: #a7dab3; }
-.task-priority-tag.priority-low .priority-dot { background: #058527; }
+.task-priority-tag.priority-high { background: var(--danger-bg); color: var(--danger-color); border-color: var(--danger-border); }
+.task-priority-tag.priority-high .priority-dot { background: var(--danger-dot); }
+.task-priority-tag.priority-medium { background: var(--warning-bg); color: var(--warning-color); border-color: var(--warning-border); }
+.task-priority-tag.priority-medium .priority-dot { background: var(--warning-dot); }
+.task-priority-tag.priority-low { background: var(--success-bg); color: var(--success-color); border-color: var(--success-border); }
+.task-priority-tag.priority-low .priority-dot { background: var(--success-color); }
 
 .task-category-tag {
     display: inline-flex;
@@ -192,13 +240,13 @@
     font-weight: 600;
     padding: 2px 9px;
     border-radius: 10px;
-    background: #eef1ff;
+    background: var(--category-tag-bg);
     color: var(--primary-blue);
     border: 1px solid var(--border-color);
 }
 
 mark.search-highlight {
-    background-color: #ffe58f;
+    background-color: var(--highlight-bg);
     color: inherit;
     padding: 0 2px;
     border-radius: 3px;
@@ -206,8 +254,8 @@ mark.search-highlight {
 
 .task-date-badge {
     font-size: 11px;
-    color: #058527;
-    background: #f1faf3;
+    color: var(--success-color);
+    background: var(--success-bg);
     padding: 2px 6px;
     border-radius: 4px;
     margin-top: 6px;
@@ -215,11 +263,11 @@ mark.search-highlight {
 }
 
 .task-item.completed .task-name { text-decoration: line-through; color: var(--text-muted); }
-.task-item.completed .checkbox { color: #058527; }
+.task-item.completed .checkbox { color: var(--success-color); }
 
 .task-item.overdue .task-date-badge {
-    color: #cf1322;
-    background: #fff1f0;
+    color: var(--danger-color);
+    background: var(--danger-bg);
 }
 
 .task-empty {
@@ -248,11 +296,11 @@ mark.search-highlight {
 .edit-btn:hover { color: var(--primary-blue); background: var(--hover-bg); }
 
 .delete-btn {
-    background: none; border: none; color: #b3b3b3;
+    background: none; border: none; color: var(--delete-icon-color);
     cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 4px;
     transition: color var(--transition-fast);
 }
-.delete-btn:hover { color: red; background: #fff0f0; }
+.delete-btn:hover { color: var(--danger-color-strong); background: var(--danger-bg-soft); }
 
 .task-item-editing { align-items: stretch; }
 .task-edit-row {
@@ -268,9 +316,9 @@ mark.search-highlight {
     font-size: 13px;
     outline: none;
     width: 100%;
-    background: #fbfdff;
+    background: var(--edit-input-bg);
 }
-.task-edit-input:focus { border-color: var(--primary-blue); background: white; }
+.task-edit-input:focus { border-color: var(--primary-blue); background: var(--color-white); }
 
 textarea.task-edit-input.edit-desc {
     resize: none;
@@ -298,7 +346,7 @@ textarea.task-edit-input.edit-desc {
 }
 .btn-edit-save {
     background: var(--primary-blue);
-    color: white;
+    color: var(--color-white);
     border: none;
     padding: 7px 14px;
     border-radius: 6px;
@@ -316,15 +364,15 @@ textarea.task-edit-input.edit-desc {
     font-size: 12px;
     cursor: pointer;
 }
-.btn-edit-cancel:hover { background: rgba(0,0,0,0.05); }
+.btn-edit-cancel:hover { background: var(--overlay-subtle); }
 
 .undo-toast {
     position: fixed;
     left: 50%;
     bottom: 24px;
     transform: translateX(-50%);
-    background: #1f1f1f;
-    color: white;
+    background: var(--overlay-dark-bg);
+    color: var(--color-white);
     padding: 10px 16px;
     border-radius: 8px;
     display: flex;
@@ -338,7 +386,7 @@ textarea.task-edit-input.edit-desc {
 .undo-btn {
     background: none;
     border: none;
-    color: #7fb3ff;
+    color: var(--link-color);
     font-weight: 700;
     cursor: pointer;
     font-size: 13px;
@@ -348,7 +396,7 @@ textarea.task-edit-input.edit-desc {
 
 .btn-select-mode {
     border: 1px solid var(--border-color);
-    background: white;
+    background: var(--color-white);
     color: var(--text-main);
     font-size: 12px;
     font-weight: 600;
@@ -361,7 +409,7 @@ textarea.task-edit-input.edit-desc {
 .btn-select-mode:hover { background: var(--hover-bg); }
 .btn-select-mode.active {
     background: var(--primary-blue);
-    color: white;
+    color: var(--color-white);
     border-color: var(--primary-blue);
 }
 
@@ -381,7 +429,7 @@ textarea.task-edit-input.edit-desc {
     justify-content: space-between;
     gap: 10px;
     flex-wrap: wrap;
-    background: #eef3ff;
+    background: var(--primary-blue-soft-bg);
     border: 1px solid var(--primary-blue);
     border-radius: 8px;
     padding: 10px 14px;
@@ -408,28 +456,28 @@ textarea.task-edit-input.edit-desc {
     cursor: pointer;
     white-space: nowrap;
 }
-.bulk-bar-btn.bulk-complete { background: #e6f7ec; color: #058527; }
-.bulk-bar-btn.bulk-complete:hover { background: #ccf0d8; }
-.bulk-bar-btn.bulk-delete { background: #fff1f0; color: #cf1322; }
-.bulk-bar-btn.bulk-delete:hover { background: #ffd6d6; }
+.bulk-bar-btn.bulk-complete { background: var(--success-bg-strong); color: var(--success-color); }
+.bulk-bar-btn.bulk-complete:hover { background: var(--success-bg-strong-hover); }
+.bulk-bar-btn.bulk-delete { background: var(--danger-bg); color: var(--danger-color); }
+.bulk-bar-btn.bulk-delete:hover { background: var(--danger-bg-hover); }
 .bulk-bar-btn.bulk-cancel { background: transparent; color: var(--text-muted); }
-.bulk-bar-btn.bulk-cancel:hover { background: rgba(0,0,0,0.05); }
+.bulk-bar-btn.bulk-cancel:hover { background: var(--overlay-subtle); }
 
 .task-date-badge.due-tomorrow {
-    color: #d46b08;
-    background: #fffbe6;
+    color: var(--warning-color);
+    background: var(--warning-bg);
 }
 
 .tl-dialog-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.4); display: flex; align-items: center;
+    background: var(--overlay-backdrop); display: flex; align-items: center;
     justify-content: center; z-index: 3000; opacity: 0; pointer-events: none;
     transition: opacity 0.2s ease;
 }
 .tl-dialog-overlay.show { opacity: 1; pointer-events: auto; }
 
 .tl-dialog-box {
-    background: white;
+    background: var(--color-white);
     width: 90%;
     max-width: 380px;
     border-radius: 12px;
@@ -444,8 +492,8 @@ textarea.task-edit-input.edit-desc {
 .tl-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .tl-dialog-btn { border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
 .tl-dialog-cancel { background: transparent; color: var(--text-muted); }
-.tl-dialog-cancel:hover { background: rgba(0,0,0,0.05); }
-.tl-dialog-confirm { background: var(--primary-blue); color: white; }
+.tl-dialog-cancel:hover { background: var(--overlay-subtle); }
+.tl-dialog-confirm { background: var(--primary-blue); color: var(--color-white); }
 .tl-dialog-confirm:hover { background: var(--primary-blue-hover); }
 
 @keyframes checkboxPop {
@@ -456,8 +504,8 @@ textarea.task-edit-input.edit-desc {
 .checkbox.checkbox-pop { animation: checkboxPop 320ms ease; }
 
 @keyframes taskHighlightFlash {
-    0% { box-shadow: 0 0 0 0 rgba(63,92,219,0.5); }
-    50% { box-shadow: 0 0 0 6px rgba(63,92,219,0.15); }
-    100% { box-shadow: 0 0 0 0 rgba(63,92,219,0); }
+    0% { box-shadow: 0 0 0 0 rgba(var(--primary-blue-rgb), 0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(var(--primary-blue-rgb), 0.15); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--primary-blue-rgb), 0); }
 }
 .task-item.task-highlight { animation: taskHighlightFlash 1200ms ease; }
