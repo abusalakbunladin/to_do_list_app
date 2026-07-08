@@ -188,6 +188,17 @@
                         <div class="profile-progress-bar" id="profile-progress-bar"></div>
                     </div>
                 </div>
+
+                <div class="profile-backup">
+                    <h4 class="backup-title">💾 Cadangkan & Pulihkan Data</h4>
+                    <p class="backup-desc">Data tugas cuma tersimpan di browser ini. Unduh cadangan secara berkala biar tidak hilang kalau cache dibersihkan atau ganti perangkat.</p>
+                    <div class="backup-actions">
+                        <button type="button" class="btn-backup-export" id="btn-export-data">⬇️ Unduh Backup</button>
+                        <button type="button" class="btn-backup-import" id="btn-import-data">⬆️ Pulihkan dari File</button>
+                        <input type="file" id="import-file-input" accept="application/json,.json" hidden>
+                    </div>
+                    <p class="backup-status" id="backup-status" role="status" aria-live="polite"></p>
+                </div>
             </div>
         </div>
     </div>
