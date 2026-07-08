@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const CATEGORIES = ['💼 Kerja', '🎓 Kuliah', '🏠 Pribadi'];
 
-    // Disamakan dengan batas di form "+ Add Task" (task-form.js)
     const EDIT_MAX_TITLE_LENGTH = 100;
     const EDIT_MAX_DESC_LENGTH = 500;
 
@@ -164,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let selectionMode = false;
     let selectedIds = new Set();
-    let expandedDescIds = new Set();
     let scrollTargetId = null;
     let pulseId = null;
     let lastKnownIds = new Set();
@@ -371,20 +369,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const isSelected = selectedIds.has(task.id);
         const priorityMeta = PRIORITY_META[task.priority] || null;
         const store = window.AppStore;
-        const isDescExpanded = expandedDescIds.has(task.id);
-
         const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''} ${isDescExpanded ? 'desc-expanded' : ''}`.trim();
+        li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''}`.trim();
         li.setAttribute('data-id', task.id);
 
         li.innerHTML = `
             ${selectionMode ? `<span class="bulk-select-box" data-action="bulk-select" data-id="${task.id}">${isSelected ? '☑' : '☐'}</span>` : ''}
             <span class="checkbox" data-action="toggle" data-id="${task.id}">${task.completed ? '●' : '○'}</span>
             <div class="task-details" data-action="toggle" data-id="${task.id}">
-                <span class="task-name" data-action="edit" data-id="${task.id}" title="Klik untuk edit tugas">${highlightMatch(task.title, searchQuery)}</span>
+                <span class="task-name" data-id="${task.id}">${highlightMatch(task.title, searchQuery)}</span>
                 ${task.desc ? `
-                <span class="task-meta${isDescExpanded ? '' : ' desc-clamped'}" data-desc-id="${task.id}">${highlightMatch(task.desc, searchQuery)}</span>
-                <button type="button" class="task-desc-toggle" data-action="toggle-desc" data-id="${task.id}">${isDescExpanded ? '▲ Sembunyikan' : '▼ Selengkapnya'}</button>
+                <span class="task-meta" data-desc-id="${task.id}">${highlightMatch(task.desc, searchQuery)}</span>
                 ` : ''}
                 <div class="task-tags">
                     ${priorityMeta ? `<span class="task-priority-tag ${priorityMeta.className}"><span class="priority-dot"></span>${priorityMeta.label}</span>` : ''}
@@ -394,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             ${selectionMode ? '' : `
             <div class="task-actions">
-                <button type="button" class="edit-btn" data-action="edit" data-id="${task.id}" title="Edit tugas ini">✏️ Edit</button>
+                <button type="button" class="edit-btn" data-action="edit" data-id="${task.id}" title="Edit tugas ini"> Edit</button>
                 <button type="button" class="delete-btn" data-action="delete" data-id="${task.id}">Hapus</button>
             </div>`}
         `;
@@ -420,7 +415,9 @@ document.addEventListener('DOMContentLoaded', function () {
         li.innerHTML = `
             <div class="task-edit-row">
                 <input type="text" class="task-edit-input edit-title" value="${store.escapeHTML(task.title)}" placeholder="Judul tugas" maxlength="${EDIT_MAX_TITLE_LENGTH}">
+                <div class="title-meta-row"><span class="char-counter edit-title-counter"></span></div>
                 <textarea class="task-edit-input edit-desc" rows="1" placeholder="Deskripsi (opsional)" maxlength="${EDIT_MAX_DESC_LENGTH}">${store.escapeHTML(task.desc || '')}</textarea>
+                <div class="desc-meta-row"><span class="char-counter edit-desc-counter"></span></div>
                 <div class="edit-meta-row">
                     <input type="date" class="task-edit-input edit-date" value="${task.date}">
                     <select class="edit-category task-category-select">${categoryOptions}</select>
@@ -436,14 +433,35 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
+        const titleInput = li.querySelector('.edit-title');
+        const titleCounter = li.querySelector('.edit-title-counter');
+        if (titleInput) {
+            const updateTitleCounter = () => {
+                if (!titleCounter) return;
+                const len = titleInput.value.length;
+                titleCounter.textContent = `${len}/${EDIT_MAX_TITLE_LENGTH}`;
+                titleCounter.classList.toggle('warning', len >= EDIT_MAX_TITLE_LENGTH - 10);
+            };
+            titleInput.addEventListener('input', updateTitleCounter);
+            updateTitleCounter();
+        }
+
         const descTextarea = li.querySelector('.edit-desc');
+        const descCounter = li.querySelector('.edit-desc-counter');
         if (descTextarea) {
             const autoGrow = () => {
                 descTextarea.style.height = 'auto';
                 descTextarea.style.height = descTextarea.scrollHeight + 'px';
             };
-            descTextarea.addEventListener('input', autoGrow);
+            const updateDescCounter = () => {
+                if (!descCounter) return;
+                const len = descTextarea.value.length;
+                descCounter.textContent = `${len}/${EDIT_MAX_DESC_LENGTH}`;
+                descCounter.classList.toggle('warning', len >= EDIT_MAX_DESC_LENGTH - 30);
+            };
+            descTextarea.addEventListener('input', () => { autoGrow(); updateDescCounter(); });
             requestAnimationFrame(autoGrow);
+            updateDescCounter();
         }
 
         return li;
@@ -527,22 +545,6 @@ document.addEventListener('DOMContentLoaded', function () {
         taskCountDisplay.textContent = base.length;
     }
 
-    function updateDescToggles() {
-        listContainer.querySelectorAll('.task-meta[data-desc-id]').forEach(el => {
-            const id = el.getAttribute('data-desc-id');
-            const btn = listContainer.querySelector(`.task-desc-toggle[data-id="${id}"]`);
-            if (!btn) return;
-
-            if (expandedDescIds.has(id)) {
-                btn.style.display = 'inline-block';
-                return;
-            }
-
-            const isOverflowing = el.scrollHeight > el.clientHeight + 1;
-            btn.style.display = isOverflowing ? 'inline-block' : 'none';
-        });
-    }
-
     function performRender() {
         if (!listContainer) return;
 
@@ -552,7 +554,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         buildList();
-        updateDescToggles();
 
         listContainer.querySelectorAll('.task-item[data-id]').forEach(el => {
             if (el.classList.contains('task-item-editing')) return;
@@ -635,10 +636,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (action === 'bulk-select') {
             if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
-            window.renderTaskList();
-
-        } else if (action === 'toggle-desc') {
-            if (expandedDescIds.has(id)) expandedDescIds.delete(id); else expandedDescIds.add(id);
             window.renderTaskList();
 
         } else if (action === 'toggle') {
