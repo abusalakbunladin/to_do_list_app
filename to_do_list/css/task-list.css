@@ -1,106 +1,3 @@
-/* ===================================================================
-   Variabel warna khusus Orang 3 (Data Filtering & List Manager)
-   Variabel dasar (--primary-blue, --primary-blue-hover, --text-main,
-   --text-muted, --border-color, --hover-bg, --shadow-sm, --shadow-md,
-   --transition-fast) sudah didefinisikan Orang 1 di style.css:root
-   dan dipakai ulang langsung di file ini. Variabel di bawah ini
-   melengkapi palet warna tersebut khusus untuk kebutuhan task-list.
-
-   Catatan integrasi: sebagian token status di bawah ini (--success-*,
-   --warning-*, --danger-*, --primary-blue-rgb, --primary-blue-soft-bg,
-   --color-white) juga dipakai ulang oleh task-form.css milik Orang 2,
-   supaya warna pill prioritas di form "+ Add Task" selalu identik
-   dengan tag prioritas & baris edit inline di halaman daftar tugas.
-   =================================================================== */
-:root {
-    /* Hijau: status sukses / prioritas rendah / tugas selesai */
-    --success-color: #058527;
-    --success-color-rgb: 5, 133, 39; /* dipakai utk rgba(), mis. box-shadow sukses di task-form.css */
-    --success-dot: #058527; /* hijau solid TETAP, tidak ikut memudar di dark mode - selaras dgn --danger-dot & --warning-dot, dipakai utk isian pill aktif prioritas rendah */
-    --success-bg: #f1faf3;
-    --success-border: #a7dab3;
-    --success-bg-strong: #e6f7ec;
-    --success-bg-strong-hover: #ccf0d8;
-
-    /* Kuning/oranye: status peringatan / prioritas sedang */
-    --warning-color: #d46b08;
-    --warning-bg: #fffbe6;
-    --warning-border: #ffe08a;
-    --warning-dot: #ffc107;
-
-    /* Merah: status bahaya / hapus / prioritas tinggi */
-    --danger-color: #cf1322;
-    --danger-bg: #fff1f0;
-    --danger-bg-soft: #fff0f0;
-    --danger-bg-hover: #ffd6d6;
-    --danger-border: #ffb3b3;
-    --danger-dot: #ff4d4f;
-    --danger-color-strong: red;
-
-    /* Turunan biru, selaras dengan --primary-blue milik Orang 1 */
-    --primary-blue-rgb: 63, 92, 219;
-    --primary-blue-soft-bg: #eef3ff;
-    --category-tag-bg: #eef1ff;
-    --link-color: #7fb3ff;
-
-    /* Netral & permukaan lainnya.
-       Catatan: permukaan kartu/input TIDAK pakai --color-white langsung,
-       tapi pakai --bg-surface milik Orang 1 (sudah otomatis berubah gelap
-       lewat [data-theme="dark"] di style.css). --color-white di sini hanya
-       dipertahankan untuk teks putih di atas tombol berwarna (selalu putih
-       di kedua tema). */
-    --color-white: #ffffff;
-    --edit-input-bg: #fbfdff;
-    --delete-icon-color: #b3b3b3;
-    --highlight-bg: #ffe58f;
-    --highlight-text: #1f1f1f;
-    --overlay-dark-bg: #1f1f1f;
-    --overlay-backdrop: rgba(0, 0, 0, 0.4);
-    --overlay-subtle: rgba(0, 0, 0, 0.05);
-    --overlay-soft: rgba(0, 0, 0, 0.08);
-}
-
-/* Override warna khusus Orang 3 untuk mode gelap, supaya semua tag
-   status, badge, dan overlay di task-list tetap kontras & enak dilihat
-   saat [data-theme="dark"] aktif (atribut ini diatur oleh Orang 1 di
-   style.css lewat theme-toggle). */
-[data-theme="dark"] {
-    --success-color: #4ade80;
-    --success-color-rgb: 74, 222, 128;
-    --success-dot: #058527; /* tetap sama seperti mode terang, mis. --danger-dot & --warning-dot */
-    --success-bg: #123a22;
-    --success-border: #1f5c34;
-    --success-bg-strong: #163c28;
-    --success-bg-strong-hover: #1d4d34;
-
-    --warning-color: #ffb454;
-    --warning-bg: #3a2f0f;
-    --warning-border: #5c4a1a;
-    --warning-dot: #ffc107;
-
-    --danger-color: #ff8a8a;
-    --danger-bg: #3a1616;
-    --danger-bg-soft: #3a1616;
-    --danger-bg-hover: #4a1e1e;
-    --danger-border: #5c2626;
-    --danger-dot: #ff4d4f;
-    --danger-color-strong: #ff5252;
-
-    --primary-blue-rgb: 91, 123, 250;
-    --primary-blue-soft-bg: #1b2540;
-    --category-tag-bg: #1b2540;
-    --link-color: #8fb8ff;
-
-    --edit-input-bg: #202b40;
-    --delete-icon-color: #7a8296;
-    --highlight-bg: #b58a1f;
-    --highlight-text: #fff3d6;
-    --overlay-dark-bg: #05070c;
-    --overlay-backdrop: rgba(0, 0, 0, 0.6);
-    --overlay-subtle: rgba(255, 255, 255, 0.08);
-    --overlay-soft: rgba(255, 255, 255, 0.1);
-}
-
 .section-title {
     font-size: 14px;
     font-weight: 600;
@@ -128,16 +25,10 @@
     margin-bottom: 12px;
 }
 
-/* Gaya dasar bersama untuk semua kontrol toolbar (search, select, tombol),
-   supaya tidak ada aturan warna/border/radius yang diulang-ulang untuk
-   tiap elemen. --bg-surface (bukan --color-white) dipakai supaya warna
-   permukaan otomatis ikut berubah saat mode gelap aktif. Elemen spesifik
-   tinggal menambah/menimpa properti yang benar-benar berbeda. */
 .task-search-input,
 .task-sort-select,
 .task-category-filter-select,
-.btn-sort-direction,
-.btn-select-mode {
+.btn-sort-direction {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 8px 10px;
@@ -226,7 +117,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    min-width: 0; /* penting: agar item flex ini boleh menyusut & membungkus teks, bukan mendorong lebar kartu */
+    min-width: 0; 
     cursor: pointer;
 }
 .task-name {
@@ -432,11 +323,13 @@ textarea.task-edit-input.edit-desc {
 }
 .undo-btn:hover { text-decoration: underline; }
 
-
-/* Properti dasar (border, background, padding, dst) sudah ada di aturan
-   gabungan bersama .task-search-input/.task-sort-select di atas; di sini
-   cukup properti yang memang khas tombol ini. */
 .btn-select-mode {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-surface);
+    color: var(--text-main);
+    outline: none;
+    white-space: nowrap;
     font-size: 12px;
     font-weight: 600;
     padding: 8px 12px;
