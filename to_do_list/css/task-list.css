@@ -35,7 +35,7 @@
     outline: none;
     background: white;
 }
-.task-search-input:focus { border-color: var(--primary-red); }
+.task-search-input:focus { border-color: var(--primary-blue); }
 
 .task-sort-select {
     border: 1px solid var(--border-color);
@@ -48,7 +48,7 @@
     cursor: pointer;
     white-space: nowrap;
 }
-.task-sort-select:focus { border-color: var(--primary-red); }
+.task-sort-select:focus { border-color: var(--primary-blue); }
 
 .task-category-filter-select {
     border: 1px solid var(--border-color);
@@ -61,7 +61,7 @@
     cursor: pointer;
     white-space: nowrap;
 }
-.task-category-filter-select:focus { border-color: var(--primary-red); }
+.task-category-filter-select:focus { border-color: var(--primary-blue); }
 
 .btn-sort-direction {
     border: 1px solid var(--border-color);
@@ -112,15 +112,9 @@
     margin-bottom: 6px;
     border-radius: 8px;
     box-shadow: var(--shadow-sm);
-    max-height: 300px;
+    max-height: 600px;
     transition: transform 240ms ease, opacity 220ms ease, max-height 220ms ease,
                 margin 220ms ease, padding 220ms ease, border-color 220ms ease;
-}
-
-/* Saat deskripsi tugas sedang diperluas (Selengkapnya), lepaskan batas tinggi
-   supaya teks panjang tidak terpotong/menembus keluar kartu tugas. */
-.task-item.desc-expanded {
-    max-height: none;
 }
 
 .task-item.task-enter {
@@ -155,9 +149,6 @@
     overflow-wrap: anywhere;
     word-break: break-word;
 }
-.task-name[data-action="edit"] { cursor: pointer; }
-.task-name[data-action="edit"]:hover { text-decoration: underline dotted; }
-.task-name[data-action="edit"]:hover::after { content: " ✏️"; opacity: 0.6; font-size: 11px; }
 .task-meta {
     font-size: 12px;
     color: var(--text-muted);
@@ -166,28 +157,6 @@
     overflow-wrap: anywhere;
     word-break: break-word;
 }
-/* Deskripsi tugas dipotong maksimal 3 baris, dengan tombol "Selengkapnya" untuk membuka penuh */
-.task-meta.desc-clamped {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
-}
-
-.task-desc-toggle {
-    display: none;
-    align-self: flex-start;
-    margin-top: 4px;
-    padding: 0;
-    border: none;
-    background: none;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--primary-red);
-    cursor: pointer;
-}
-.task-desc-toggle:hover { color: var(--primary-red-hover); text-decoration: underline; }
-.task-desc-toggle:focus-visible { outline: 2px solid var(--primary-red); outline-offset: 2px; border-radius: 3px; }
 
 .task-tags {
     display: flex;
@@ -224,7 +193,7 @@
     padding: 2px 9px;
     border-radius: 10px;
     background: #eef1ff;
-    color: var(--primary-red);
+    color: var(--primary-blue);
     border: 1px solid var(--border-color);
 }
 
@@ -276,7 +245,7 @@ mark.search-highlight {
     cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 4px;
     transition: color var(--transition-fast), background-color var(--transition-fast);
 }
-.edit-btn:hover { color: var(--primary-red); background: var(--hover-bg); }
+.edit-btn:hover { color: var(--primary-blue); background: var(--hover-bg); }
 
 .delete-btn {
     background: none; border: none; color: #b3b3b3;
@@ -301,7 +270,7 @@ mark.search-highlight {
     width: 100%;
     background: #fbfdff;
 }
-.task-edit-input:focus { border-color: var(--primary-red); background: white; }
+.task-edit-input:focus { border-color: var(--primary-blue); background: white; }
 
 textarea.task-edit-input.edit-desc {
     resize: none;
@@ -328,7 +297,7 @@ textarea.task-edit-input.edit-desc {
     gap: 8px;
 }
 .btn-edit-save {
-    background: var(--primary-red);
+    background: var(--primary-blue);
     color: white;
     border: none;
     padding: 7px 14px;
@@ -337,7 +306,7 @@ textarea.task-edit-input.edit-desc {
     font-weight: 600;
     cursor: pointer;
 }
-.btn-edit-save:hover { background: var(--primary-red-hover); }
+.btn-edit-save:hover { background: var(--primary-blue-hover); }
 .btn-edit-cancel {
     background: transparent;
     border: none;
@@ -391,9 +360,9 @@ textarea.task-edit-input.edit-desc {
 }
 .btn-select-mode:hover { background: var(--hover-bg); }
 .btn-select-mode.active {
-    background: var(--primary-red);
+    background: var(--primary-blue);
     color: white;
-    border-color: var(--primary-red);
+    border-color: var(--primary-blue);
 }
 
 .bulk-select-box {
@@ -402,7 +371,7 @@ textarea.task-edit-input.edit-desc {
     margin-right: 10px;
     font-size: 16px;
     line-height: 1;
-    color: var(--primary-red);
+    color: var(--primary-blue);
     user-select: none;
 }
 
@@ -413,7 +382,7 @@ textarea.task-edit-input.edit-desc {
     gap: 10px;
     flex-wrap: wrap;
     background: #eef3ff;
-    border: 1px solid var(--primary-red);
+    border: 1px solid var(--primary-blue);
     border-radius: 8px;
     padding: 10px 14px;
     margin-bottom: 12px;
@@ -427,7 +396,7 @@ textarea.task-edit-input.edit-desc {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.bulk-bar-count { font-weight: 700; color: var(--primary-red); }
+.bulk-bar-count { font-weight: 700; color: var(--primary-blue); }
 .bulk-bar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .bulk-bar-btn {
@@ -476,8 +445,8 @@ textarea.task-edit-input.edit-desc {
 .tl-dialog-btn { border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
 .tl-dialog-cancel { background: transparent; color: var(--text-muted); }
 .tl-dialog-cancel:hover { background: rgba(0,0,0,0.05); }
-.tl-dialog-confirm { background: var(--primary-red); color: white; }
-.tl-dialog-confirm:hover { background: var(--primary-red-hover); }
+.tl-dialog-confirm { background: var(--primary-blue); color: white; }
+.tl-dialog-confirm:hover { background: var(--primary-blue-hover); }
 
 @keyframes checkboxPop {
     0% { transform: scale(1); }
