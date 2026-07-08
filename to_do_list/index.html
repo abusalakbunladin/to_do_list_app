@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To Do List</title>
-    
+
+    <script>
+        (function() {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/task-form.css">
@@ -21,9 +31,14 @@
                     <span class="avatar">G</span>
                     <span class="username">Gabung</span>
                 </div>
-                <button class="notif-btn" id="notif-trigger" title="Notifikasi">
-                    🔔<span class="notif-badge" id="notif-badge">0</span>
-                </button>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="theme-toggle" aria-label="Ganti ke mode gelap" aria-pressed="false" title="Ganti tema">
+                        <span class="theme-icon" aria-hidden="true">🌙</span>
+                    </button>
+                    <button class="notif-btn" id="notif-trigger" title="Notifikasi">
+                        🔔<span class="notif-badge" id="notif-badge">0</span>
+                    </button>
+                </div>
             </div>
 
             <nav class="main-nav">
