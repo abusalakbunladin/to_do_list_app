@@ -6,6 +6,8 @@
     background: white;
     box-shadow: var(--shadow-sm);
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
+
+    height: 50%;
 }
 
 .task-input-container.success-flash {
@@ -148,6 +150,7 @@
 
 .priority-pill {
     display: inline-flex;
+    justify-content: center;
     align-items: center;
     gap: 6px;
     border: 1.5px solid var(--border-color);
@@ -171,20 +174,20 @@
 
 .priority-pill.priority-high { border-color: #ffb3b3; color: #cf1322; }
 .priority-pill.priority-high .priority-dot { background-color: #ff4d4f; }
-.priority-pill.priority-high:hover { background-color: #fac9c6; }
-.priority-pill.priority-high.active { background-color: #ff4d4f; border-color: #ff4d4f; color: white; }
+.priority-pill.priority-high:hover { background-color: #fac9c6;}
+.priority-pill.priority-high.active { background-color: #ff4d4f; border-color: #ff4d4f; color: white; transform: scale(1.15); }
 .priority-pill.priority-high.active .priority-dot { background-color: white; }
 
 .priority-pill.priority-medium { border-color: #ffe08a; color: #d46b08; }
 .priority-pill.priority-medium .priority-dot { background-color: #ffc107; }
 .priority-pill.priority-medium:hover { background-color: #fcf3c7; }
-.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #ffc107; color: #4a2e00; }
+.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #ffc107; color: #4a2e00; transform: scale(1.15); }
 .priority-pill.priority-medium.active .priority-dot { background-color: #4a2e00; }
 
 .priority-pill.priority-low { border-color: #a7dab3; color: #058527; }
 .priority-pill.priority-low .priority-dot { background-color: #058527; }
 .priority-pill.priority-low:hover { background-color: #cffad8; }
-.priority-pill.priority-low.active { background-color: #058527; border-color: #058527; color: white; }
+.priority-pill.priority-low.active { background-color: #058527; border-color: #058527; color: white; transform: scale(1.15); }
 .priority-pill.priority-low.active .priority-dot { background-color: white; }
 
 .priority-error-row { min-height: 16px; margin-bottom: 8px; }
