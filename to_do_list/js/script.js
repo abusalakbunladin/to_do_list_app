@@ -11,6 +11,13 @@ window.AppStore = {
     })(),
     currentView: 'add-task',
 
+    CATEGORIES: ['💼 Kerja', '🎓 Kuliah', '🏠 Pribadi'],
+    PRIORITIES: [
+        { value: 'tinggi', label: 'Tinggi', className: 'priority-high' },
+        { value: 'sedang', label: 'Sedang', className: 'priority-medium' },
+        { value: 'rendah', label: 'Rendah', className: 'priority-low' }
+    ],
+
     escapeHTML: function(str) {
         return str.replace(/[&<>'"]/g, 
             tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
@@ -23,6 +30,16 @@ window.AppStore = {
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
+    },
+
+    persist: function() {
+        try {
+            localStorage.setItem('tasks', JSON.stringify(this.tasks));
+            return true;
+        } catch (err) {
+            console.error('Gagal menyimpan tugas ke localStorage.', err);
+            return false;
+        }
     },
     
     saveAndSync: function() {
