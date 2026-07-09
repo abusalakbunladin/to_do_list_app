@@ -206,19 +206,19 @@
 .priority-pill.priority-high { border-color: #ffb3b3; color: #cf1322; background: #fff1f0; }
 .priority-pill.priority-high .priority-dot { background-color: #ff4d4f; }
 .priority-pill.priority-high:hover { background-color: #fac9c6; transform: scale(1.10); border-color: rgb(255, 0, 0); box-shadow: 0 0 5px 3px rgba(255, 0, 0, 0.644); transition: 0.2s ease-in-out; }
-.priority-pill.priority-high.active { background-color: #ff4d4f; border-color: #ff4d4f; color: white; transform: scale(1.20); box-shadow: 0 0 10px 5px rgba(255, 0, 0, 0.644); transition: 0.2s ease-in-out; }
+.priority-pill.priority-high.active { background-color: #ff4d4f; border-color: white; color: white; transform: scale(1.20); box-shadow: 0 0 10px 5px rgba(255, 0, 0, 0.644); transition: 0.2s ease-in-out; }
 .priority-pill.priority-high.active .priority-dot { background-color: white; }
 
 .priority-pill.priority-medium { border-color: #ffe08a; color: #d46b08; background: #fffbe6; }
 .priority-pill.priority-medium .priority-dot { background-color: #ffc107; }
 .priority-pill.priority-medium:hover { background-color: #fcf3c7; transform: scale(1.10); border-color: rgb(255, 238, 0); box-shadow: 0 0 5px 3px rgba(255, 238, 0, 0.644); transition: 0.2s ease-in-out; }
-.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #ffc107; color: #4a2e00; transform: scale(1.20); box-shadow: 0 0 10px 5px rgba(255, 238, 0, 0.644); transition: 0.2s ease-in-out; }
-.priority-pill.priority-medium.active .priority-dot { background-color: #4a2e00; }
+.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #2b2000; color: #3a331d; transform: scale(1.20); box-shadow: 0 0 10px 5px rgb(255, 238, 0); transition: 0.2s ease-in-out; }
+.priority-pill.priority-medium.active .priority-dot { background-color: #3a331d; }
 
 .priority-pill.priority-low { border-color: #a7dab3; color: #058527; background: #f1faf3; }
 .priority-pill.priority-low .priority-dot { background-color: #058527; }
 .priority-pill.priority-low:hover { background-color: #cffad8; transform: scale(1.10); border-color: rgb(1, 182, 31); box-shadow: 0 0 5px 3px rgba(1, 182, 31, 0.644); transition: 0.2s ease-in-out; }
-.priority-pill.priority-low.active { background-color: #058527; border-color: #058527; color: white; transform: scale(1.20); box-shadow: 0 0 10px 5px rgba(1, 182, 31, 0.644); transition: 0.2s ease-in-out; }
+.priority-pill.priority-low.active { background-color: #058527; border-color: white; color: white; transform: scale(1.20); box-shadow: 0 0 10px 5px rgba(1, 182, 31, 0.644); transition: 0.2s ease-in-out; }
 .priority-pill.priority-low.active .priority-dot { background-color: white; }
 
 .priority-error-row { min-height: 16px; margin-bottom: 8px; }
@@ -253,6 +253,50 @@
 .btn-submit { background: var(--primary-blue); color: white; }
 .btn-submit:hover { background: var(--primary-blue-hover); transform: scale(1.20); }
 .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+
+.cancel-undo-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(20px);
+    background: #1f1f1f;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+    box-shadow: var(--shadow-md);
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.cancel-undo-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.cancel-undo-text { white-space: nowrap; }
+
+.cancel-undo-btn {
+    background: none;
+    border: none;
+    color: #7fb3ff;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.cancel-undo-btn:hover { text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+    .cancel-undo-toast { transition: opacity 0.2s ease; }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
     .task-title-input.shake,
@@ -355,7 +399,6 @@
 
 
 [data-theme="dark"] .btn-cancel:hover { background: rgba(255, 19, 19, 0.575); }
-
 
 [data-theme="dark"] .task-input-container.priority-border-tinggi { border-color: #f8888a; }
 [data-theme="dark"] .task-input-container.priority-border-sedang { border-color: #ffe188; }
