@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
     filterIndicator.innerHTML = `
         <span class="filter-indicator-label">🔎 Filter aktif:</span>
         <div class="filter-chips" id="filter-chips"></div>
-        <button type="button" id="btn-reset-filters" class="btn-reset-filters">✖ Reset Filter</button>
+        <button type="button" id="btn-reset-filters" class="btn-reset-filters">X Reset Filter</button>
     `;
     listContainer.parentNode.insertBefore(filterIndicator, listContainer);
     const filterChipsContainer = filterIndicator.querySelector('#filter-chips');
@@ -211,18 +211,15 @@ document.addEventListener('DOMContentLoaded', function () {
     bulkBar.innerHTML = `
         <span class="bulk-bar-count" id="bulk-bar-count">0 dipilih</span>
         <div class="bulk-bar-actions">
-            <select id="bulk-category-select" class="bulk-bar-select" title="Ubah kategori tugas terpilih">
-                <option value="" selected disabled>🗂️ Ubah Kategori</option>
-                ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-            </select>
-            <div id="bulk-priority-select" class="priority-dd" title="Ubah prioritas tugas terpilih"></div>
             <button type="button" id="btn-bulk-complete" class="bulk-bar-btn bulk-complete">✅ Selesaikan</button>
+            <button type="button" id="btn-bulk-uncomplete" class="bulk-bar-btn bulk-uncomplete">↩️ Batalkan Selesai</button>
             <button type="button" id="btn-bulk-delete" class="bulk-bar-btn bulk-delete">🗑️ Hapus</button>
-            <button type="button" id="btn-bulk-cancel" class="bulk-bar-btn bulk-cancel">✖ Batal</button>
         </div>
     `;
     listContainer.parentNode.insertBefore(bulkBar, listContainer);
     const bulkBarCountEl = bulkBar.querySelector('#bulk-bar-count');
+    const bulkCompleteBtn = bulkBar.querySelector('#btn-bulk-complete');
+    const bulkUncompleteBtn = bulkBar.querySelector('#btn-bulk-uncomplete');
 
     const searchInput = toolbar.querySelector('#task-search');
     const categoryFilterSelect = toolbar.querySelector('#task-category-filter');
@@ -306,14 +303,61 @@ document.addEventListener('DOMContentLoaded', function () {
     selectModeBtn.addEventListener('click', function () {
         selectionMode = !selectionMode;
         selectedIds.clear();
+        editingTaskId = null;
         this.classList.toggle('active', selectionMode);
-        this.textContent = selectionMode ? '✖️ Batal Pilih' : '☑️ Pilih';
+        this.textContent = selectionMode ? 'X️ Batal Pilih' : '☑️ Pilih';
         window.renderTaskList();
     });
+
+    function getSelectionGroup() {
+        if (selectedIds.size === 0) return null;
+        const store = window.AppStore;
+        for (const id of selectedIds) {
+            const t = store.tasks.find(x => x.id === id);
+            if (t) return !!t.completed;
+        }
+        return null;
+    }
+
+    function flashSelectionBlocked(id) {
+        const el = listContainer.querySelector(`.task-item[data-id="${id}"]`);
+        if (!el) return;
+        el.classList.add('select-blocked');
+        setTimeout(() => el.classList.remove('select-blocked'), 350);
+    }
+
+    function tryToggleSelection(id) {
+        const store = window.AppStore;
+        const task = store.tasks.find(t => t.id === id);
+        if (!task) return;
+
+        if (selectedIds.has(id)) {
+            selectedIds.delete(id);
+            window.renderTaskList();
+            return;
+        }
+
+        const group = getSelectionGroup();
+        if (group !== null && group !== task.completed) {
+            flashSelectionBlocked(id);
+            return;
+        }
+
+        selectedIds.add(id);
+        window.renderTaskList();
+    }
 
     function updateBulkBar() {
         if (bulkBarCountEl) bulkBarCountEl.textContent = `${selectedIds.size} dipilih`;
         bulkBar.classList.toggle('show', selectionMode && selectedIds.size > 0);
+
+        const store = window.AppStore;
+        const selectedTasks = store.tasks.filter(t => selectedIds.has(t.id));
+        const allIncomplete = selectedTasks.length > 0 && selectedTasks.every(t => !t.completed);
+        const allComplete = selectedTasks.length > 0 && selectedTasks.every(t => t.completed);
+
+        if (bulkCompleteBtn) bulkCompleteBtn.disabled = !allIncomplete;
+        if (bulkUncompleteBtn) bulkUncompleteBtn.disabled = !allComplete;
     }
 
     function updateFilterIndicator() {
@@ -365,15 +409,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    bulkBar.querySelector('#btn-bulk-cancel').addEventListener('click', function () {
-        selectedIds.clear();
-        window.renderTaskList();
-    });
-
-    bulkBar.querySelector('#btn-bulk-complete').addEventListener('click', function () {
-        if (selectedIds.size === 0) return;
+    bulkCompleteBtn.addEventListener('click', function () {
+        if (this.disabled || selectedIds.size === 0) return;
         const store = window.AppStore;
         store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.completed = true; });
+        selectedIds.clear();
+        store.saveAndSync();
+    });
+
+    bulkUncompleteBtn.addEventListener('click', function () {
+        if (this.disabled || selectedIds.size === 0) return;
+        const store = window.AppStore;
+        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.completed = false; });
         selectedIds.clear();
         store.saveAndSync();
     });
@@ -394,51 +441,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         );
     });
-
-    bulkBar.querySelector('#bulk-category-select').addEventListener('change', function () {
-        const value = this.value;
-        if (!value || selectedIds.size === 0) { this.selectedIndex = 0; return; }
-        const store = window.AppStore;
-        const count = selectedIds.size;
-        const snapshot = store.tasks
-            .filter(t => selectedIds.has(t.id))
-            .map(t => ({ id: t.id, category: t.category }));
-
-        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.category = value; });
-        this.selectedIndex = 0;
-        store.saveAndSync();
-
-        showUndoToast([], `🗂️ Kategori ${count} tugas diubah ke "${value}".`, function () {
-            snapshot.forEach(s => {
-                const task = store.tasks.find(t => t.id === s.id);
-                if (task) task.category = s.category;
-            });
-        });
-    });
-
-    const bulkPrioritySelect = initPriorityDropdown(bulkBar.querySelector('#bulk-priority-select'), { includeAll: false, placeholder: '🚩 Ubah Prioritas' });
-    bulkPrioritySelect.addEventListener('change', function () {
-        const value = this.value;
-        if (!value || selectedIds.size === 0) { this.value = ''; return; }
-        const store = window.AppStore;
-        const count = selectedIds.size;
-        const label = (PRIORITY_META[value] || {}).label || value;
-        const snapshot = store.tasks
-            .filter(t => selectedIds.has(t.id))
-            .map(t => ({ id: t.id, priority: t.priority }));
-
-        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.priority = value; });
-        this.value = '';
-        store.saveAndSync();
-
-        showUndoToast([], `🚩 Prioritas ${count} tugas diubah ke "${label}".`, function () {
-            snapshot.forEach(s => {
-                const task = store.tasks.find(t => t.id === s.id);
-                if (task) task.priority = s.priority;
-            });
-        });
-    });
-
 
     let pendingDelete = null;
 
@@ -565,8 +567,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const isSelected = selectedIds.has(task.id);
         const priorityMeta = PRIORITY_META[task.priority] || null;
         const store = window.AppStore;
+
+        const selectionGroup = selectionMode ? getSelectionGroup() : null;
+        const isLockedForSelection = selectionMode && !isSelected && selectionGroup !== null && selectionGroup !== task.completed;
+
         const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''}`.trim();
+        li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''} ${isLockedForSelection ? 'selection-locked' : ''}`.trim();
         li.setAttribute('data-id', task.id);
 
         li.innerHTML = `
@@ -616,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="desc-meta-row"><span class="char-counter edit-desc-counter"></span></div>
                 <div class="edit-meta-row">
                     <input type="date" class="task-edit-input edit-date" value="${task.date}">
-                    <select class="edit-category task-category-select">${categoryOptions}</select>
+                    <select class="edit-category task-category-filter-select">${categoryOptions}</select>
                 </div>
                 <div class="priority-row">
                     <span class="priority-label">Prioritas:</span>
@@ -717,6 +723,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (searchQuery) base = base.filter(t => matchesSearch(t, searchQuery));
         if (categoryFilter) base = base.filter(t => t.category === categoryFilter);
         if (priorityFilter) base = base.filter(t => t.priority === priorityFilter);
+
+        if (editingTaskId && !base.some(t => t.id === editingTaskId)) {
+            editingTaskId = null;
+        }
 
         const label = viewLabels[store.currentView] || viewLabels['all'];
         if (sectionIcon) sectionIcon.textContent = label.icon;
@@ -840,14 +850,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const todayStr = store.getTodayString();
 
         if (selectionMode && (action === 'toggle' || action === 'edit')) {
-            if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
-            window.renderTaskList();
+            tryToggleSelection(id);
             return;
         }
 
         if (action === 'bulk-select') {
-            if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
-            window.renderTaskList();
+            tryToggleSelection(id);
 
         } else if (action === 'toggle') {
             const task = store.tasks.find(t => t.id === id);
