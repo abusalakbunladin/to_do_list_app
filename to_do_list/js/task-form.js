@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
     taskDescInput.insertAdjacentElement('afterend', descMetaRow);
 
     const PRIORITIES = [
-        { value: 'tinggi', label: 'High', className: 'priority-high' },
-        { value: 'sedang', label: 'Normal', className: 'priority-medium' },
-        { value: 'rendah', label: 'Low', className: 'priority-low' }
+        { value: 'tinggi', label: 'Tinggi', className: 'priority-high' },
+        { value: 'sedang', label: 'Sedang', className: 'priority-medium' },
+        { value: 'rendah', label: 'Rendah', className: 'priority-low' }
     ];
     let selectedPriority = null;
 
