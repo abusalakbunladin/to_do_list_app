@@ -125,6 +125,7 @@ body {
 
 .content {
     flex-grow: 1;
+    min-width: 0;
     padding: 40px 10%;
     overflow-y: auto;
 }
