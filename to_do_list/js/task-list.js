@@ -36,10 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
         applySort: function (tasks, mode, direction) {
             let arr = [...tasks];
             const dir = direction === 'desc' ? -1 : 1;
-
-            // Kalau tugasnya sudah selesai, Tanggal lama udah gak relevan lagi
-            // buat diurutkan. Jadi acuannya diganti ke kapan tugas itu BENERAN
-            // diselesaikan (completedAt), bukan Tanggal aslinya.
             const dateKey = (t) => (t.completed && t.completedAt) ? t.completedAt : t.date;
 
             switch (mode) {
@@ -54,8 +50,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                     break;
                 case 'created':
-                    // Ini yang beneran merepresentasikan "Terbaru/Terlama" —
-                    // berdasarkan kapan tugas dibuat, bukan Tanggalnya.
                     arr.sort((a, b) => dir * (a.createdAt || '').localeCompare(b.createdAt || ''));
                     break;
                 case 'date':
@@ -87,8 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const EDIT_MAX_DESC_LENGTH = 500;
 
     const SORT_DIRECTION_LABELS = {
-        // "date" = Tanggal/deadline tugas -> istilahnya "Terdekat/Terjauh",
-        // bukan "Terbaru/Terlama" (itu lebih cocok buat kapan tugas DIBUAT).
         date: { asc: '⬆️ Tanggal Terdekat → Terjauh', desc: '⬇️ Tanggal Terjauh → Terdekat' },
         created: { asc: '⬆️ Terlama → Terbaru', desc: '⬇️ Terbaru → Terlama' },
         name: { asc: '⬆️ A → Z', desc: '⬇️ Z → A' },
@@ -703,9 +695,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const buckets = [overdue, today, upcoming, done];
         buckets.forEach(bucket => {
             if (bucket === overdue && mode === 'date') {
-                // Yang paling lama telat selalu tampil paling atas di grup ini,
-                // apapun arah toggle "Terdekat/Terjauh" yang lagi dipilih user.
-                // Urgensi tugas telat itu tetap, bukan preferensi tampilan.
                 bucket.tasks = [...bucket.tasks].sort((a, b) => a.date.localeCompare(b.date));
             } else {
                 bucket.tasks = window.TaskFilters.applySort(bucket.tasks, mode, direction);
