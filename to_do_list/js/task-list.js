@@ -576,8 +576,10 @@ document.addEventListener('DOMContentLoaded', function () {
         li.setAttribute('data-id', task.id);
 
         li.innerHTML = `
-            ${selectionMode ? `<span class="bulk-select-box" data-action="bulk-select" data-id="${task.id}">${isSelected ? '☑' : '☐'}</span>` : ''}
-            <span class="checkbox" data-action="toggle" data-id="${task.id}">${task.completed ? '●' : '○'}</span>
+            <span class="task-item-select-group">
+                ${selectionMode ? `<span class="bulk-select-box${isSelected ? ' checked' : ''}" data-action="bulk-select" data-id="${task.id}">${isSelected ? '✓' : ''}</span>` : ''}
+                <span class="checkbox${task.completed ? ' completed' : ''}${selectionMode ? ' select-mode' : ''}" data-action="toggle" data-id="${task.id}"></span>
+            </span>
             <div class="task-details" data-action="toggle" data-id="${task.id}">
                 <span class="task-name" data-id="${task.id}">${highlightMatch(task.title, searchQuery)}</span>
                 ${task.desc ? `
