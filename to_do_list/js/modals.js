@@ -11,9 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastFocusedTrigger = null;
  
     function getTomorrowString(todayStr) {
-        // Dihitung pakai komponen tahun/bulan/tanggal murni (bukan lewat toISOString),
-        // soalnya toISOString() konversi ke UTC dan bikin tanggal geser mundur
-        // buat timezone yang lebih maju dari UTC (misal WIB / UTC+7).
         const [year, month, day] = todayStr.split('-').map(Number);
         const utcDate = new Date(Date.UTC(year, month - 1, day));
         utcDate.setUTCDate(utcDate.getUTCDate() + 1);
@@ -125,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalNotif = document.getElementById('modal-notif');
         if (modalNotif && modalNotif.classList.contains('show')) closeModal(modalNotif);
  
-        // Reset filter pencarian & kategori di daftar tugas, biar tugasnya nggak ketutup filter lama
         const searchInput = document.getElementById('task-search');
         if (searchInput && searchInput.value) {
             searchInput.value = '';
@@ -137,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
             categoryFilterSelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
  
-        // Pindah ke tab "All Tasks" biar tugasnya pasti kelihatan, apapun statusnya
         const allNavItem = document.querySelector('.main-nav li[data-view="all"]');
         if (allNavItem) allNavItem.click();
  
