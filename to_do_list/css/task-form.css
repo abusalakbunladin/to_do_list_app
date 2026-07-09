@@ -151,8 +151,8 @@
 }
 .task-category-select.error { border-color: #cf1322; }
 .task-category-select.shake { animation: shake 0.35s ease; }
-.task-category-select:hover { background-color: #c4d1f7; transition: 0.2s ease-in-out; border-color: #5c82ff; transform: scale(1.10); }
-.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); background-color: #c8e5ff; color: var(--text-main); transition: 0.2s ease-in-out; transform: scale(1.10); }
+.task-category-select:hover { background-color: #c8e5ff; color: #1e2d5f; transition: 0.2s ease-in-out; border-color: #5c82ff; transform: scale(1.10); }
+.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); background-color: #c8e5ff; color: #1e2d5f; transform: scale(1.10); }
 
 .category-error-row { min-height: 16px; margin-bottom: 6px; }
 
@@ -338,10 +338,11 @@
     border-color: rgba(63, 92, 219, 0.45);
 }
 [data-theme="dark"] .task-category-select:hover {
-    background-color: rgba(63, 92, 219, 0.32);
+    background-color: rgb(23, 29, 56);
     border-color: white;
+    color: var(--text-main);
 }
-[data-theme="dark"] .task-category-select:focus { background-color: rgb(23, 29, 56); color: var(--text-main); border-color: white; transition: 0.2s ease-in-out; }
+[data-theme="dark"] .task-category-select:focus { background-color: rgb(23, 29, 56); color: var(--text-main); border-color: white; }
 
 
 [data-theme="dark"] .priority-pill.priority-high {
