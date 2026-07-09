@@ -259,7 +259,7 @@
     position: fixed;
     left: 50%;
     bottom: 24px;
-    transform: translateX(-50%) translateY(20px);
+    transform: translateX(0) translateY(20px);
     background: #1f1f1f;
     color: white;
     padding: 10px 16px;
@@ -276,8 +276,9 @@
 }
 .cancel-undo-toast.show {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(0) translateY(-50px);
     pointer-events: auto;
+    transform: scale(1.30);
 }
 
 .cancel-undo-text { white-space: nowrap; }
