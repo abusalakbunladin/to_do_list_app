@@ -296,7 +296,7 @@
     background-color: rgba(63, 92, 219, 0.32);
     border-color: white;
 }
-[data-theme="dark"] .task-category-select:focus { background-color: rgba(8, 26, 105, 0.616); color: var(--text-main); border-color: white; }
+[data-theme="dark"] .task-category-select:focus { background-color: rgb(8, 26, 105); color: var(--text-main); border-color: white; transition: 0.2s ease-in-out; }
 
 
 [data-theme="dark"] .priority-pill.priority-high {
