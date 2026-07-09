@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', function () {
             let arr = [...tasks];
             const dir = direction === 'desc' ? -1 : 1;
 
+            // Kalau tugasnya sudah selesai, Tanggal lama udah gak relevan lagi
+            // buat diurutkan. Jadi acuannya diganti ke kapan tugas itu BENERAN
+            // diselesaikan (completedAt), bukan Tanggal aslinya.
+            const dateKey = (t) => (t.completed && t.completedAt) ? t.completedAt : t.date;
+
             switch (mode) {
                 case 'name':
                     arr.sort((a, b) => dir * a.title.localeCompare(b.title, 'id', { sensitivity: 'base' }));
@@ -48,9 +53,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         return dir * (pa - pb);
                     });
                     break;
+                case 'created':
+                    // Ini yang beneran merepresentasikan "Terbaru/Terlama" —
+                    // berdasarkan kapan tugas dibuat, bukan Tanggalnya.
+                    arr.sort((a, b) => dir * (a.createdAt || '').localeCompare(b.createdAt || ''));
+                    break;
                 case 'date':
                 default:
-                    arr.sort((a, b) => dir * a.date.localeCompare(b.date));
+                    arr.sort((a, b) => dir * dateKey(a).localeCompare(dateKey(b)));
             }
             return arr;
         }
@@ -77,7 +87,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const EDIT_MAX_DESC_LENGTH = 500;
 
     const SORT_DIRECTION_LABELS = {
-        date: { asc: '⬆️ Terlama → Terbaru', desc: '⬇️ Terbaru → Terlama' },
+        // "date" = Tanggal/deadline tugas -> istilahnya "Terdekat/Terjauh",
+        // bukan "Terbaru/Terlama" (itu lebih cocok buat kapan tugas DIBUAT).
+        date: { asc: '⬆️ Tanggal Terdekat → Terjauh', desc: '⬇️ Tanggal Terjauh → Terdekat' },
+        created: { asc: '⬆️ Terlama → Terbaru', desc: '⬇️ Terbaru → Terlama' },
         name: { asc: '⬆️ A → Z', desc: '⬇️ Z → A' },
         priority: { asc: '⬆️ Rendah → Tinggi', desc: '⬇️ Tinggi → Rendah' }
     };
@@ -185,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div id="task-priority-filter" class="priority-dd" title="Filter berdasarkan prioritas"></div>
         <select id="task-sort" class="task-sort-select" title="Urutkan tugas">
             <option value="date">📅 Tanggal</option>
+            <option value="created">🕐 Dibuat</option>
             <option value="name">🔤 Nama</option>
             <option value="priority">🚩 Prioritas</option>
         </select>
@@ -412,7 +426,8 @@ document.addEventListener('DOMContentLoaded', function () {
     bulkCompleteBtn.addEventListener('click', function () {
         if (this.disabled || selectedIds.size === 0) return;
         const store = window.AppStore;
-        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.completed = true; });
+        const now = new Date().toISOString();
+        store.tasks.forEach(t => { if (selectedIds.has(t.id)) { t.completed = true; t.completedAt = now; } });
         selectedIds.clear();
         store.saveAndSync();
     });
@@ -420,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
     bulkUncompleteBtn.addEventListener('click', function () {
         if (this.disabled || selectedIds.size === 0) return;
         const store = window.AppStore;
-        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.completed = false; });
+        store.tasks.forEach(t => { if (selectedIds.has(t.id)) { t.completed = false; t.completedAt = null; } });
         selectedIds.clear();
         store.saveAndSync();
     });
@@ -580,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 ${selectionMode ? `<span class="bulk-select-box${isSelected ? ' checked' : ''}" data-action="bulk-select" data-id="${task.id}">${isSelected ? '✓' : ''}</span>` : ''}
                 <span class="checkbox${task.completed ? ' completed' : ''}${selectionMode ? ' select-mode' : ''}" data-action="toggle" data-id="${task.id}"></span>
             </span>
-            <div class="task-details" data-action="toggle" data-id="${task.id}">
+            <div class="task-details">
                 <span class="task-name" data-id="${task.id}">${highlightMatch(task.title, searchQuery)}</span>
                 ${task.desc ? `
                 <span class="task-meta" data-desc-id="${task.id}">${highlightMatch(task.desc, searchQuery)}</span>
@@ -686,7 +701,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const buckets = [overdue, today, upcoming, done];
-        buckets.forEach(b => { b.tasks = window.TaskFilters.applySort(b.tasks, mode, direction); });
+        buckets.forEach(bucket => {
+            if (bucket === overdue && mode === 'date') {
+                // Yang paling lama telat selalu tampil paling atas di grup ini,
+                // apapun arah toggle "Terdekat/Terjauh" yang lagi dipilih user.
+                // Urgensi tugas telat itu tetap, bukan preferensi tampilan.
+                bucket.tasks = [...bucket.tasks].sort((a, b) => a.date.localeCompare(b.date));
+            } else {
+                bucket.tasks = window.TaskFilters.applySort(bucket.tasks, mode, direction);
+            }
+        });
         return buckets.filter(b => b.tasks.length > 0);
     }
 
@@ -867,6 +891,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const applyToggle = () => {
                 task.completed = willBeCompleted;
+                task.completedAt = willBeCompleted ? new Date().toISOString() : null;
                 if (willBeCompleted) {
                     pulseId = task.id;
                 }
