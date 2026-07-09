@@ -97,9 +97,6 @@
     cursor: pointer;
 }
 .priority-dd-option:hover { background: var(--hover-bg); }
-
-/* Trigger & option pakai warna prioritas yang sama, jadi digabung
-   dalam satu deklarasi alih-alih ditulis dua kali. */
 .priority-dd-trigger.priority-high,
 .priority-dd-option.priority-high { color: var(--danger-color); }
 .priority-dd-trigger.priority-medium,
@@ -387,8 +384,15 @@ mark.search-highlight {
     outline: none;
     width: 100%;
     background: var(--edit-input-bg);
+    color: var(--text-main);
 }
-.task-edit-input:focus { border-color: var(--primary-blue); background: var(--bg-surface); }
+.task-edit-input::placeholder { color: var(--text-muted); }
+.task-edit-input:focus { border-color: var(--primary-blue); background: var(--bg-surface); color: var(--text-main); }
+.task-edit-input.edit-desc { color: var(--text-muted); }
+.task-edit-input.edit-desc:focus { color: var(--text-main); }
+
+input.task-edit-input[type="date"] { color-scheme: light; }
+[data-theme="dark"] input.task-edit-input[type="date"] { color-scheme: dark; }
 
 textarea.task-edit-input.edit-desc {
     resize: none;
@@ -405,9 +409,15 @@ textarea.task-edit-input.edit-desc {
     flex-wrap: wrap;
 }
 .edit-meta-row .edit-date { flex: 1 1 140px; width: auto; }
-.edit-meta-row .edit-category { flex: 1 1 160px; margin: 0; }
+.edit-meta-row .edit-category { flex: 1 1 160px; margin: 0; cursor: pointer; }
 
 .task-item-editing .priority-row { margin-bottom: 0; }
+.task-item-editing .priority-options .priority-pill,
+.task-item-editing .priority-options .priority-pill:hover,
+.task-item-editing .priority-options .priority-pill.active {
+    transform: none !important;
+    box-shadow: none !important;
+}
 
 .task-edit-actions {
     display: flex;
@@ -492,6 +502,23 @@ textarea.task-edit-input.edit-desc {
     user-select: none;
 }
 
+.task-item.selection-locked {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+@keyframes selectBlockedShake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+}
+.task-item.select-blocked { animation: selectBlockedShake 0.35s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+    .task-item.select-blocked { animation: none; }
+}
+
 .bulk-bar {
     display: none;
     align-items: center;
@@ -527,25 +554,16 @@ textarea.task-edit-input.edit-desc {
 }
 .bulk-bar-btn.bulk-complete { background: var(--success-bg-strong); color: var(--success-color); }
 .bulk-bar-btn.bulk-complete:hover { background: var(--success-bg-strong-hover); }
+.bulk-bar-btn.bulk-uncomplete { background: var(--warning-bg); color: var(--warning-color); }
+.bulk-bar-btn.bulk-uncomplete:hover { background: var(--warning-border); }
 .bulk-bar-btn.bulk-delete { background: var(--danger-bg); color: var(--danger-color); }
 .bulk-bar-btn.bulk-delete:hover { background: var(--danger-bg-hover); }
-.bulk-bar-btn.bulk-cancel { background: transparent; color: var(--text-muted); }
-.bulk-bar-btn.bulk-cancel:hover { background: var(--overlay-subtle); }
 
-.bulk-bar-select {
-    border: 1px solid var(--primary-color);
-    background: var(--bg-surface);
-    color: var(--primary-color);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 7px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    outline: none;
-    white-space: nowrap;
+.bulk-bar-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
 }
-.bulk-bar-select:hover { background: var(--hover-bg); }
-.bulk-bar-select:focus { border-color: var(--primary-color-hover); }
 
 .task-date-badge.due-tomorrow {
     color: var(--warning-color);
