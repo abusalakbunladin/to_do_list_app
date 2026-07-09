@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 
-    // ------- Buka / tutup sidebar (khusus mode mobile off-canvas) -------
     function openSidebar() {
         if (!sidebarEl) return;
         sidebarEl.classList.add('open');
@@ -37,11 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape') closeSidebar();
     });
 
-    // ------- Navigasi menu -------
     navItems.forEach(item => {
         item.addEventListener('click', function(e) {
-            // Dulu tidak ada preventDefault, jadi tiap klik nav bikin
-            // URL nambah "#" dan halaman bisa ikut ter-scroll ke atas.
             e.preventDefault();
 
             navItems.forEach(nav => {
@@ -61,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             window.AppStore.saveAndSync();
 
-            // Di mobile, sidebar otomatis nutup setelah pilih menu
             closeSidebar();
         });
     });
