@@ -116,6 +116,63 @@ document.addEventListener('DOMContentLoaded', function () {
         if (changed) localStorage.setItem('tasks', JSON.stringify(store.tasks));
     }
 
+    const PRIORITY_ORDER = ['tinggi', 'sedang', 'rendah'];
+
+    // Dropdown prioritas kustom (bukan <select> asli). Popup <select> bawaan
+    // browser tidak bisa 100% dikontrol lewat CSS (warna highlight/hover-nya
+    // dipaksa sistem), jadi menu di sini dirender & digaya sendiri pakai <ul>
+    // biasa, supaya warna tiap opsi TIDAK PERNAH berubah saat di-hover/dipilih.
+    // Satu fungsi ini dipakai ulang untuk filter toolbar maupun bulk-bar.
+    function initPriorityDropdown(root, { includeAll, placeholder }) {
+        if (!root) return root;
+        root.innerHTML = `
+            <button type="button" class="priority-dd-trigger"></button>
+            <ul class="priority-dd-menu" role="listbox"></ul>
+        `;
+        const trigger = root.querySelector('.priority-dd-trigger');
+        const menu = root.querySelector('.priority-dd-menu');
+
+        const options = [
+            ...(includeAll ? [{ value: '', label: 'Semua Prioritas', icon: '🚩' }] : []),
+            ...PRIORITY_ORDER.map(v => ({ value: v, label: PRIORITY_META[v].label, cls: PRIORITY_META[v].className }))
+        ];
+        const optionMarkup = opt => opt.icon
+            ? `${opt.icon} ${opt.label}`
+            : `<span class="priority-dot"></span> ${opt.label}`;
+
+        let value = '';
+
+        function renderTrigger() {
+            const opt = options.find(o => o.value === value);
+            trigger.className = 'priority-dd-trigger' + (opt && opt.cls ? ` ${opt.cls}` : '');
+            trigger.innerHTML = opt ? optionMarkup(opt) : (placeholder || 'Pilih');
+        }
+
+        menu.innerHTML = options.map(opt => `
+            <li class="priority-dd-option${opt.cls ? ' ' + opt.cls : ''}" data-value="${opt.value}" role="option">${optionMarkup(opt)}</li>
+        `).join('');
+        menu.querySelectorAll('.priority-dd-option').forEach(li => {
+            li.addEventListener('click', () => {
+                value = li.dataset.value;
+                renderTrigger();
+                root.classList.remove('open');
+                root.dispatchEvent(new Event('change'));
+            });
+        });
+
+        trigger.addEventListener('click', () => root.classList.toggle('open'));
+        document.addEventListener('click', e => { if (!root.contains(e.target)) root.classList.remove('open'); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') root.classList.remove('open'); });
+
+        Object.defineProperty(root, 'value', {
+            get: () => value,
+            set(v) { value = v; renderTrigger(); }
+        });
+
+        renderTrigger();
+        return root;
+    }
+
     const toolbar = document.createElement('div');
     toolbar.className = 'task-toolbar';
     toolbar.innerHTML = `
@@ -124,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <option value="">🗂️ Semua Kategori</option>
             ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
         </select>
+        <div id="task-priority-filter" class="priority-dd" title="Filter berdasarkan prioritas"></div>
         <select id="task-sort" class="task-sort-select" title="Urutkan tugas">
             <option value="date">📅 Tanggal</option>
             <option value="name">🔤 Nama</option>
@@ -135,12 +193,27 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
     listContainer.parentNode.insertBefore(toolbar, listContainer);
 
+    const filterIndicator = document.createElement('div');
+    filterIndicator.className = 'filter-indicator';
+    filterIndicator.id = 'filter-indicator';
+    filterIndicator.innerHTML = `
+        <span class="filter-indicator-label">🔎 Filter aktif:</span>
+        <div class="filter-chips" id="filter-chips"></div>
+        <button type="button" id="btn-reset-filters" class="btn-reset-filters">✖ Reset Filter</button>
+    `;
+    listContainer.parentNode.insertBefore(filterIndicator, listContainer);
+
     const bulkBar = document.createElement('div');
     bulkBar.className = 'bulk-bar';
     bulkBar.id = 'bulk-bar';
     bulkBar.innerHTML = `
         <span class="bulk-bar-count" id="bulk-bar-count">0 dipilih</span>
         <div class="bulk-bar-actions">
+            <select id="bulk-category-select" class="bulk-bar-select" title="Ubah kategori tugas terpilih">
+                <option value="" selected disabled>🗂️ Ubah Kategori</option>
+                ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+            </select>
+            <div id="bulk-priority-select" class="priority-dd" title="Ubah prioritas tugas terpilih"></div>
             <button type="button" id="btn-bulk-complete" class="bulk-bar-btn bulk-complete">✅ Selesaikan</button>
             <button type="button" id="btn-bulk-delete" class="bulk-bar-btn bulk-delete">🗑️ Hapus</button>
             <button type="button" id="btn-bulk-cancel" class="bulk-bar-btn bulk-cancel">✖ Batal</button>
@@ -150,6 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const searchInput = toolbar.querySelector('#task-search');
     const categoryFilterSelect = toolbar.querySelector('#task-category-filter');
+    const priorityFilterSelect = initPriorityDropdown(toolbar.querySelector('#task-priority-filter'), { includeAll: true });
     const sortSelect = toolbar.querySelector('#task-sort');
     const sortDirectionBtn = toolbar.querySelector('#btn-sort-direction');
     const selectModeBtn = toolbar.querySelector('#btn-select-mode');
@@ -157,6 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let searchQuery = '';
     let categoryFilter = '';
+    let priorityFilter = '';
     let sortMode = 'date';
     let sortDirection = 'asc';
     let editingTaskId = null;
@@ -167,15 +242,45 @@ document.addEventListener('DOMContentLoaded', function () {
     let pulseId = null;
     let lastKnownIds = new Set();
 
-    searchInput.addEventListener('input', function () {
-        searchQuery = this.value.trim().toLowerCase();
+    function debounce(fn, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    const runSearch = debounce(function () {
+        searchQuery = searchInput.value.trim().toLowerCase();
         window.renderTaskList();
-    });
+    }, 200);
+
+    searchInput.addEventListener('input', runSearch);
 
     categoryFilterSelect.addEventListener('change', function () {
         categoryFilter = this.value;
         window.renderTaskList();
     });
+
+    if (priorityFilterSelect) {
+        priorityFilterSelect.addEventListener('change', function () {
+            priorityFilter = this.value;
+            window.renderTaskList();
+        });
+    }
+
+    const resetFiltersBtn = filterIndicator.querySelector('#btn-reset-filters');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            searchQuery = '';
+            categoryFilterSelect.value = '';
+            categoryFilter = '';
+            if (priorityFilterSelect) priorityFilterSelect.value = '';
+            priorityFilter = '';
+            window.renderTaskList();
+        });
+    }
 
     function updateSortDirectionLabel() {
         const meta = SORT_DIRECTION_LABELS[sortMode] || SORT_DIRECTION_LABELS.date;
@@ -209,6 +314,55 @@ document.addEventListener('DOMContentLoaded', function () {
         bulkBar.classList.toggle('show', selectionMode && selectedIds.size > 0);
     }
 
+    function updateFilterIndicator() {
+        const chipsContainer = document.getElementById('filter-chips');
+        if (!chipsContainer) return;
+
+        const chips = [];
+        if (searchQuery) {
+            chips.push({
+                label: `🔍 "${searchInput.value.trim()}"`,
+                clear: () => { searchInput.value = ''; searchQuery = ''; }
+            });
+        }
+        if (categoryFilter) {
+            chips.push({
+                label: categoryFilter,
+                clear: () => { categoryFilterSelect.value = ''; categoryFilter = ''; }
+            });
+        }
+        if (priorityFilter) {
+            const meta = PRIORITY_META[priorityFilter];
+            const dotClass = meta ? meta.className : '';
+            const labelText = window.AppStore.escapeHTML(meta ? meta.label : priorityFilter);
+            chips.push({
+                html: `<span class="filter-chip-priority ${dotClass}"><span class="priority-dot"></span>${labelText}</span>`,
+                clear: () => { if (priorityFilterSelect) priorityFilterSelect.value = ''; priorityFilter = ''; }
+            });
+        }
+
+        filterIndicator.classList.toggle('show', chips.length > 0);
+        chipsContainer.innerHTML = '';
+
+        chips.forEach((chip, idx) => {
+            const chipEl = document.createElement('span');
+            chipEl.className = 'filter-chip';
+            const content = chip.html ? chip.html : window.AppStore.escapeHTML(chip.label);
+            chipEl.innerHTML = `${content} <button type="button" class="filter-chip-remove" data-chip-idx="${idx}" title="Hapus filter ini">&times;</button>`;
+            chipsContainer.appendChild(chipEl);
+        });
+
+        chipsContainer.querySelectorAll('.filter-chip-remove').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const idx = parseInt(this.getAttribute('data-chip-idx'), 10);
+                if (chips[idx]) {
+                    chips[idx].clear();
+                    window.renderTaskList();
+                }
+            });
+        });
+    }
+
     bulkBar.querySelector('#btn-bulk-cancel').addEventListener('click', function () {
         selectedIds.clear();
         window.renderTaskList();
@@ -239,10 +393,54 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
+    bulkBar.querySelector('#bulk-category-select').addEventListener('change', function () {
+        const value = this.value;
+        if (!value || selectedIds.size === 0) { this.selectedIndex = 0; return; }
+        const store = window.AppStore;
+        const count = selectedIds.size;
+        const snapshot = store.tasks
+            .filter(t => selectedIds.has(t.id))
+            .map(t => ({ id: t.id, category: t.category }));
+
+        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.category = value; });
+        this.selectedIndex = 0;
+        store.saveAndSync();
+
+        showUndoToast([], `🗂️ Kategori ${count} tugas diubah ke "${value}".`, function () {
+            snapshot.forEach(s => {
+                const task = store.tasks.find(t => t.id === s.id);
+                if (task) task.category = s.category;
+            });
+        });
+    });
+
+    const bulkPrioritySelect = initPriorityDropdown(bulkBar.querySelector('#bulk-priority-select'), { includeAll: false, placeholder: '🚩 Ubah Prioritas' });
+    bulkPrioritySelect.addEventListener('change', function () {
+        const value = this.value;
+        if (!value || selectedIds.size === 0) { this.value = ''; return; }
+        const store = window.AppStore;
+        const count = selectedIds.size;
+        const label = (PRIORITY_META[value] || {}).label || value;
+        const snapshot = store.tasks
+            .filter(t => selectedIds.has(t.id))
+            .map(t => ({ id: t.id, priority: t.priority }));
+
+        store.tasks.forEach(t => { if (selectedIds.has(t.id)) t.priority = value; });
+        this.value = '';
+        store.saveAndSync();
+
+        showUndoToast([], `🚩 Prioritas ${count} tugas diubah ke "${label}".`, function () {
+            snapshot.forEach(s => {
+                const task = store.tasks.find(t => t.id === s.id);
+                if (task) task.priority = s.priority;
+            });
+        });
+    });
+
 
     let pendingDelete = null;
 
-    function showUndoToast(items, message) {
+    function showUndoToast(items, message, restoreFn) {
         const existing = document.getElementById('undo-toast');
         if (existing) existing.remove();
         if (pendingDelete && pendingDelete.timeoutId) clearTimeout(pendingDelete.timeoutId);
@@ -261,15 +459,19 @@ document.addEventListener('DOMContentLoaded', function () {
         toast.querySelector('.undo-btn').addEventListener('click', () => {
             clearTimeout(timeoutId);
             if (pendingDelete) {
-                const sorted = [...pendingDelete.items].sort((a, b) => a.index - b.index);
-                sorted.forEach(item => window.AppStore.tasks.splice(item.index, 0, item.task));
+                if (typeof pendingDelete.restoreFn === 'function') {
+                    pendingDelete.restoreFn();
+                } else {
+                    const sorted = [...pendingDelete.items].sort((a, b) => a.index - b.index);
+                    sorted.forEach(item => window.AppStore.tasks.splice(item.index, 0, item.task));
+                }
                 pendingDelete = null;
                 window.AppStore.saveAndSync();
             }
             toast.remove();
         });
 
-        pendingDelete = { items, timeoutId };
+        pendingDelete = { items, timeoutId, restoreFn };
     }
 
     clearCompletedBtn.addEventListener('click', function () {
@@ -478,6 +680,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return buckets.filter(b => b.tasks.length > 0);
     }
 
+    function matchesSearch(task, query) {
+        if (!query) return true;
+        const title = (task.title || '').toLowerCase();
+        const desc = (task.desc || '').toLowerCase();
+        return title.includes(query) || desc.includes(query);
+    }
+
     function willRemainInView(task, todayStr) {
         const view = window.AppStore.currentView;
         let stays;
@@ -488,10 +697,13 @@ document.addEventListener('DOMContentLoaded', function () {
             default: stays = true;
         }
         if (stays && searchQuery) {
-            stays = task.title.toLowerCase().includes(searchQuery);
+            stays = matchesSearch(task, searchQuery);
         }
         if (stays && categoryFilter) {
             stays = task.category === categoryFilter;
+        }
+        if (stays && priorityFilter) {
+            stays = task.priority === priorityFilter;
         }
         return stays;
     }
@@ -500,12 +712,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const store = window.AppStore;
         const todayStr = store.getTodayString();
 
+        updateFilterIndicator();
+
         const hasCompleted = store.tasks.some(t => t.completed);
         clearCompletedBtn.style.display = (store.currentView === 'done' && hasCompleted) ? 'inline-block' : 'none';
 
         let base = window.TaskFilters.getByView(store.tasks, store.currentView, todayStr);
-        if (searchQuery) base = base.filter(t => t.title.toLowerCase().includes(searchQuery));
+        if (searchQuery) base = base.filter(t => matchesSearch(t, searchQuery));
         if (categoryFilter) base = base.filter(t => t.category === categoryFilter);
+        if (priorityFilter) base = base.filter(t => t.priority === priorityFilter);
 
         const label = viewLabels[store.currentView] || viewLabels['all'];
         if (sectionIcon) sectionIcon.textContent = label.icon;
@@ -518,8 +733,8 @@ document.addEventListener('DOMContentLoaded', function () {
         listContainer.innerHTML = '';
 
         if (base.length === 0) {
-            const emptyMsg = searchQuery
-                ? '🔍 Nggak ada tugas yang cocok dengan pencarianmu.'
+            const emptyMsg = (searchQuery || categoryFilter || priorityFilter)
+                ? '🔍 Nggak ada tugas yang cocok dengan filter/pencarianmu.'
                 : '✨ Tidak ada tugas di kategori ini.';
             listContainer.innerHTML = `<li class="task-empty">${emptyMsg}</li>`;
             taskCountDisplay.textContent = 0;
