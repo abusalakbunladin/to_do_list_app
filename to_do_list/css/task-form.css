@@ -151,8 +151,8 @@
 }
 .task-category-select.error { border-color: #cf1322; }
 .task-category-select.shake { animation: shake 0.35s ease; }
-.task-category-select:hover { background-color: #c4d1f7; transition: 0.2s ease-in-out; border-color: #0004ff; transform: scale(1.10); }
-.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); background-color: #3157ffc0; color: white; transition: 0.2s ease-in-out; }
+.task-category-select:hover { background-color: #c4d1f7; transition: 0.2s ease-in-out; border-color: #5c82ff; transform: scale(1.10); }
+.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); background-color: #c8e5ff; color: var(--text-main); transition: 0.2s ease-in-out; }
 
 .category-error-row { min-height: 16px; margin-bottom: 6px; }
 
@@ -212,8 +212,8 @@
 .priority-pill.priority-medium { border-color: #ffe08a; color: #d46b08; background: #fffbe6; }
 .priority-pill.priority-medium .priority-dot { background-color: #ffc107; }
 .priority-pill.priority-medium:hover { background-color: #fcf3c7; transform: scale(1.10); border-color: rgb(255, 238, 0); box-shadow: 0 0 5px 3px rgba(255, 238, 0, 0.644); transition: 0.2s ease-in-out; }
-.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #2b2000; color: #3a331d; transform: scale(1.20); box-shadow: 0 0 10px 5px rgb(255, 238, 0); transition: 0.2s ease-in-out; }
-.priority-pill.priority-medium.active .priority-dot { background-color: #3a331d; }
+.priority-pill.priority-medium.active { background-color: #ffc107; border-color: #6e5300; color: #725700; transform: scale(1.20); box-shadow: 0 0 10px 5px rgb(255, 238, 0); transition: 0.2s ease-in-out; }
+.priority-pill.priority-medium.active .priority-dot { background-color: #725700; }
 
 .priority-pill.priority-low { border-color: #a7dab3; color: #058527; background: #f1faf3; }
 .priority-pill.priority-low .priority-dot { background-color: #058527; }
@@ -340,7 +340,7 @@
     background-color: rgba(63, 92, 219, 0.32);
     border-color: white;
 }
-[data-theme="dark"] .task-category-select:focus { background-color: rgb(8, 26, 105); color: var(--text-main); border-color: white; transition: 0.2s ease-in-out; }
+[data-theme="dark"] .task-category-select:focus { background-color: rgb(23, 29, 56); color: var(--text-main); border-color: white; transition: 0.2s ease-in-out; }
 
 
 [data-theme="dark"] .priority-pill.priority-high {
