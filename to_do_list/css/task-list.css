@@ -232,7 +232,6 @@
                 margin 220ms ease, padding 220ms ease, border-color 220ms ease;
 }
 
-/* Wadah untuk checkbox "selesai" & checkbox "pilih" biar nggak nabrak/dempet */
 .task-item-select-group {
     --checkbox-size: 15px;
     display: flex;
