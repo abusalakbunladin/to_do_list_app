@@ -18,7 +18,11 @@ window.AppStore = {
     },
     
     getTodayString: function() {
-        return new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     },
     
     saveAndSync: function() {
@@ -35,15 +39,30 @@ window.AppStore = {
 
 function normalizeImportedTask(raw) {
     const VALID_PRIORITIES = ['tinggi', 'sedang', 'rendah'];
+    const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+    const SAFE_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+    function isValidDateString(str) {
+        if (!SAFE_DATE_PATTERN.test(str)) return false;
+        const d = new Date(str + 'T00:00:00');
+        return !isNaN(d.getTime());
+    }
+
+    const safeId = (typeof raw.id === 'string' && SAFE_ID_PATTERN.test(raw.id))
+        ? raw.id
+        : `task-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const safeDate = (typeof raw.date === 'string' && isValidDateString(raw.date))
+        ? raw.date
+        : window.AppStore.getTodayString();
+
     return {
-        id: (typeof raw.id === 'string' && raw.id.trim())
-            ? raw.id
-            : `task-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        id: safeId,
         title: String(raw.title).slice(0, 100),
         desc: typeof raw.desc === 'string' ? raw.desc.slice(0, 500) : '',
-        date: (typeof raw.date === 'string' && raw.date) ? raw.date : window.AppStore.getTodayString(),
+        date: safeDate,
         priority: VALID_PRIORITIES.includes(raw.priority) ? raw.priority : 'sedang',
-        category: typeof raw.category === 'string' ? raw.category : '',
+        category: typeof raw.category === 'string' ? raw.category.slice(0, 50) : '',
         completed: !!raw.completed,
         createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : new Date().toISOString()
     };
