@@ -232,6 +232,17 @@
                 margin 220ms ease, padding 220ms ease, border-color 220ms ease;
 }
 
+/* Wadah untuk checkbox "selesai" & checkbox "pilih" biar nggak nabrak/dempet */
+.task-item-select-group {
+    --checkbox-size: 15px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
 .task-item.task-enter {
     opacity: 0;
     transform: translateY(-8px) scale(0.97);
@@ -249,7 +260,35 @@
     pointer-events: none;
 }
 
-.checkbox { display: inline-block; cursor: pointer; margin-right: 12px; font-size: 18px; user-select: none; }
+.checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+    flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
+    border: 1.5px solid var(--border-color);
+    border-radius: 50%;
+    background: var(--bg-surface);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 0.1s ease;
+}
+.checkbox:hover { border-color: var(--success-color); }
+.checkbox:active { transform: scale(0.94); }
+.checkbox.select-mode:hover { border-color: var(--border-color); }
+.checkbox.select-mode:active { transform: none; }
+.checkbox.completed::after {
+    content: '✓';
+    color: var(--color-white);
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+}
+.checkbox.completed {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
 .task-details {
     display: flex;
     flex-direction: column;
@@ -330,7 +369,7 @@ mark.search-highlight {
 }
 
 .task-item.completed .task-name { text-decoration: line-through; color: var(--text-muted); }
-.task-item.completed .checkbox { color: var(--success-color); }
+.task-item.completed .checkbox { border-color: var(--success-color); }
 
 .task-item.overdue .task-date-badge {
     color: var(--danger-color);
@@ -493,13 +532,27 @@ textarea.task-edit-input.edit-desc {
 }
 
 .bulk-select-box {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+    flex-shrink: 0;
     cursor: pointer;
-    margin-right: 10px;
-    font-size: 16px;
+    font-size: 9px;
     line-height: 1;
-    color: var(--primary-blue);
+    color: var(--color-white);
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: 4px;
     user-select: none;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 0.1s ease;
+}
+.bulk-select-box:hover { border-color: var(--primary-color); }
+.bulk-select-box:active { transform: scale(0.94); }
+.bulk-select-box.checked {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
 }
 
 .task-item.selection-locked {
@@ -517,6 +570,16 @@ textarea.task-edit-input.edit-desc {
 
 @media (prefers-reduced-motion: reduce) {
     .task-item.select-blocked { animation: none; }
+}
+
+@media (max-width: 480px) {
+    .task-toolbar { gap: 6px; }
+    .task-search-input { min-width: 100%; }
+    .task-item { padding: 10px 8px; }
+    .task-item-select-group { margin-right: 6px; }
+    .task-actions { margin-left: 4px; }
+    .task-actions .edit-btn,
+    .task-actions .delete-btn { padding: 4px 6px; }
 }
 
 .bulk-bar {
