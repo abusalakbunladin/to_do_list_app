@@ -42,6 +42,73 @@
 .task-sort-select:focus,
 .task-category-filter-select:focus { border-color: var(--primary-blue); }
 
+
+.priority-dd { position: relative; }
+
+.priority-dd-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    background: var(--bg-surface);
+    color: var(--text-main);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.priority-dd-trigger:hover { background: var(--hover-bg); }
+.priority-dd.open .priority-dd-trigger { border-color: var(--primary-blue); }
+.priority-dd-trigger .priority-dot { background: currentColor; }
+.priority-dd-trigger::after {
+    content: '▾';
+    margin-left: 2px;
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.15s ease;
+}
+.priority-dd.open .priority-dd-trigger::after { transform: rotate(180deg); }
+
+.priority-dd-menu {
+    display: none;
+    list-style: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    padding: 4px;
+    z-index: 20;
+}
+.priority-dd.open .priority-dd-menu { display: block; }
+
+.priority-dd-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.priority-dd-option:hover { background: var(--hover-bg); }
+
+/* Trigger & option pakai warna prioritas yang sama, jadi digabung
+   dalam satu deklarasi alih-alih ditulis dua kali. */
+.priority-dd-trigger.priority-high,
+.priority-dd-option.priority-high { color: var(--danger-color); }
+.priority-dd-trigger.priority-medium,
+.priority-dd-option.priority-medium { color: var(--warning-color); }
+.priority-dd-trigger.priority-low,
+.priority-dd-option.priority-low { color: var(--success-color); }
+
+.priority-dd-option .priority-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
 .task-search-input { flex-grow: 1; min-width: 160px; }
 
 .task-sort-select,
@@ -68,6 +135,79 @@
     display: none;
 }
 .btn-clear-completed:hover { background: var(--danger-bg-hover); }
+
+.filter-indicator {
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--primary-blue-soft-bg);
+    border: 1px dashed var(--primary-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+.filter-indicator.show { display: flex; }
+
+.filter-indicator-label {
+    font-weight: 700;
+    color: var(--primary-color);
+    white-space: nowrap;
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex-grow: 1;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--bg-surface);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 20px;
+    padding: 3px 4px 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.filter-chip-remove {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    padding: 3px 6px;
+    border-radius: 50%;
+}
+.filter-chip-remove:hover { background: rgba(var(--primary-blue-rgb), 0.15); }
+
+.filter-chip-priority { display: inline-flex; align-items: center; gap: 5px; }
+.filter-chip-priority .priority-dot { background: currentColor; }
+.filter-chip-priority.priority-high { color: var(--danger-color); }
+.filter-chip-priority.priority-medium { color: var(--warning-color); }
+.filter-chip-priority.priority-low { color: var(--success-color); }
+
+.btn-reset-filters {
+    border: none;
+    background: var(--danger-bg);
+    color: var(--danger-color);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: auto;
+}
+.btn-reset-filters:hover { background: var(--danger-bg-hover); }
 
 .tasks { list-style: none; }
 
@@ -391,6 +531,21 @@ textarea.task-edit-input.edit-desc {
 .bulk-bar-btn.bulk-delete:hover { background: var(--danger-bg-hover); }
 .bulk-bar-btn.bulk-cancel { background: transparent; color: var(--text-muted); }
 .bulk-bar-btn.bulk-cancel:hover { background: var(--overlay-subtle); }
+
+.bulk-bar-select {
+    border: 1px solid var(--primary-color);
+    background: var(--bg-surface);
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    white-space: nowrap;
+}
+.bulk-bar-select:hover { background: var(--hover-bg); }
+.bulk-bar-select:focus { border-color: var(--primary-color-hover); }
 
 .task-date-badge.due-tomorrow {
     color: var(--warning-color);
