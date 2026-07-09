@@ -11,20 +11,27 @@ document.addEventListener('DOMContentLoaded', function () {
         isUpcoming: (task, todayStr) => task.date > todayStr && !task.completed,
         isDone: (task) => task.completed,
 
-        getByView: function (tasks, view, todayStr) {
+        matchesView: function (task, view, todayStr) {
             switch (view) {
-                case 'today': return tasks.filter(t => this.isToday(t, todayStr));
-                case 'upcoming': return tasks.filter(t => this.isUpcoming(t, todayStr));
-                case 'done': return tasks.filter(t => this.isDone(t));
-                default: return tasks.slice();
+                case 'today': return this.isToday(task, todayStr);
+                case 'upcoming': return this.isUpcoming(task, todayStr);
+                case 'done': return this.isDone(task);
+                default: return true;
             }
+        },
+
+        getByView: function (tasks, view, todayStr) {
+            return tasks.filter(t => this.matchesView(t, view, todayStr));
         },
 
         sortByDate: function (tasks) {
             return [...tasks].sort((a, b) => a.date.localeCompare(b.date));
         },
 
-        PRIORITY_LEVEL: { rendah: 0, sedang: 1, tinggi: 2 },
+        PRIORITY_LEVEL: window.AppStore.PRIORITIES.reduce((acc, p, i, arr) => {
+            acc[p.value] = arr.length - 1 - i;
+            return acc;
+        }, {}),
 
         applySort: function (tasks, mode, direction) {
             let arr = [...tasks];
@@ -59,13 +66,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-    const PRIORITY_META = {
-        tinggi: { label: 'Tinggi', className: 'priority-high' },
-        sedang: { label: 'Sedang', className: 'priority-medium' },
-        rendah: { label: 'Rendah', className: 'priority-low' }
-    };
+    const PRIORITY_META = window.AppStore.PRIORITIES.reduce((acc, p) => {
+        acc[p.value] = { label: p.label, className: p.className };
+        return acc;
+    }, {});
 
-    const CATEGORIES = ['💼 Kerja', '🎓 Kuliah', '🏠 Pribadi'];
+    const CATEGORIES = window.AppStore.CATEGORIES;
 
     const EDIT_MAX_TITLE_LENGTH = 100;
     const EDIT_MAX_DESC_LENGTH = 500;
@@ -113,16 +119,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 changed = true;
             }
         });
-        if (changed) localStorage.setItem('tasks', JSON.stringify(store.tasks));
+        if (changed) store.persist();
     }
 
-    const PRIORITY_ORDER = ['tinggi', 'sedang', 'rendah'];
+    const PRIORITY_ORDER = window.AppStore.PRIORITIES.map(p => p.value);
 
-    // Dropdown prioritas kustom (bukan <select> asli). Popup <select> bawaan
-    // browser tidak bisa 100% dikontrol lewat CSS (warna highlight/hover-nya
-    // dipaksa sistem), jadi menu di sini dirender & digaya sendiri pakai <ul>
-    // biasa, supaya warna tiap opsi TIDAK PERNAH berubah saat di-hover/dipilih.
-    // Satu fungsi ini dipakai ulang untuk filter toolbar maupun bulk-bar.
     function initPriorityDropdown(root, { includeAll, placeholder }) {
         if (!root) return root;
         root.innerHTML = `
@@ -202,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <button type="button" id="btn-reset-filters" class="btn-reset-filters">✖ Reset Filter</button>
     `;
     listContainer.parentNode.insertBefore(filterIndicator, listContainer);
+    const filterChipsContainer = filterIndicator.querySelector('#filter-chips');
 
     const bulkBar = document.createElement('div');
     bulkBar.className = 'bulk-bar';
@@ -220,6 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     `;
     listContainer.parentNode.insertBefore(bulkBar, listContainer);
+    const bulkBarCountEl = bulkBar.querySelector('#bulk-bar-count');
 
     const searchInput = toolbar.querySelector('#task-search');
     const categoryFilterSelect = toolbar.querySelector('#task-category-filter');
@@ -309,13 +312,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function updateBulkBar() {
-        const countEl = document.getElementById('bulk-bar-count');
-        if (countEl) countEl.textContent = `${selectedIds.size} dipilih`;
+        if (bulkBarCountEl) bulkBarCountEl.textContent = `${selectedIds.size} dipilih`;
         bulkBar.classList.toggle('show', selectionMode && selectedIds.size > 0);
     }
 
     function updateFilterIndicator() {
-        const chipsContainer = document.getElementById('filter-chips');
+        const chipsContainer = filterChipsContainer;
         if (!chipsContainer) return;
 
         const chips = [];
@@ -486,16 +488,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    function showConfirmDialog(message, onConfirm) {
+
+    function showDialog(message, buttons) {
         const overlay = document.createElement('div');
         overlay.className = 'tl-dialog-overlay';
+        const buttonsHTML = buttons
+            .map(b => `<button type="button" class="tl-dialog-btn ${b.className}">${b.label}</button>`)
+            .join('');
         overlay.innerHTML = `
             <div class="tl-dialog-box">
                 <p class="tl-dialog-message">${window.AppStore.escapeHTML(message)}</p>
-                <div class="tl-dialog-actions">
-                    <button type="button" class="tl-dialog-btn tl-dialog-cancel">Batal</button>
-                    <button type="button" class="tl-dialog-btn tl-dialog-confirm">Ya, Lanjutkan</button>
-                </div>
+                <div class="tl-dialog-actions">${buttonsHTML}</div>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -507,34 +510,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-        overlay.querySelector('.tl-dialog-cancel').addEventListener('click', close);
-        overlay.querySelector('.tl-dialog-confirm').addEventListener('click', () => {
-            close();
-            onConfirm();
+        overlay.querySelectorAll('.tl-dialog-btn').forEach((btnEl, i) => {
+            btnEl.addEventListener('click', () => {
+                close();
+                if (typeof buttons[i].onClick === 'function') buttons[i].onClick();
+            });
         });
     }
 
+    function showConfirmDialog(message, onConfirm) {
+        showDialog(message, [
+            { label: 'Batal', className: 'tl-dialog-cancel' },
+            { label: 'Ya, Lanjutkan', className: 'tl-dialog-confirm', onClick: onConfirm }
+        ]);
+    }
+
     function showAlertDialog(message) {
-        const overlay = document.createElement('div');
-        overlay.className = 'tl-dialog-overlay';
-        overlay.innerHTML = `
-            <div class="tl-dialog-box">
-                <p class="tl-dialog-message">${window.AppStore.escapeHTML(message)}</p>
-                <div class="tl-dialog-actions">
-                    <button type="button" class="tl-dialog-btn tl-dialog-confirm">Oke</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-        requestAnimationFrame(() => overlay.classList.add('show'));
-
-        function close() {
-            overlay.classList.remove('show');
-            setTimeout(() => overlay.remove(), 180);
-        }
-
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-        overlay.querySelector('.tl-dialog-confirm').addEventListener('click', close);
+        showDialog(message, [
+            { label: 'Oke', className: 'tl-dialog-confirm' }
+        ]);
     }
 
     function highlightMatch(text, query) {
@@ -670,12 +664,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function buildGroups(tasks, todayStr, mode, direction) {
-        const buckets = [
-            { label: '⚠️ Terlambat', tasks: tasks.filter(t => window.TaskFilters.isOverdue(t, todayStr)) },
-            { label: `📅 Hari Ini • ${formatIndoDate(todayStr)}`, tasks: tasks.filter(t => window.TaskFilters.isToday(t, todayStr)) },
-            { label: '🗓️ Mendatang', tasks: tasks.filter(t => window.TaskFilters.isUpcoming(t, todayStr)) },
-            { label: '👌 Selesai', tasks: tasks.filter(t => window.TaskFilters.isDone(t)) }
-        ];
+        const overdue = { label: '⚠️ Terlambat', tasks: [] };
+        const today = { label: `📅 Hari Ini • ${formatIndoDate(todayStr)}`, tasks: [] };
+        const upcoming = { label: '🗓️ Mendatang', tasks: [] };
+        const done = { label: '👌 Selesai', tasks: [] };
+
+
+        tasks.forEach(t => {
+            if (window.TaskFilters.isDone(t)) done.tasks.push(t);
+            else if (window.TaskFilters.isOverdue(t, todayStr)) overdue.tasks.push(t);
+            else if (window.TaskFilters.isToday(t, todayStr)) today.tasks.push(t);
+            else if (window.TaskFilters.isUpcoming(t, todayStr)) upcoming.tasks.push(t);
+        });
+
+        const buckets = [overdue, today, upcoming, done];
         buckets.forEach(b => { b.tasks = window.TaskFilters.applySort(b.tasks, mode, direction); });
         return buckets.filter(b => b.tasks.length > 0);
     }
@@ -689,13 +691,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function willRemainInView(task, todayStr) {
         const view = window.AppStore.currentView;
-        let stays;
-        switch (view) {
-            case 'today': stays = window.TaskFilters.isToday(task, todayStr); break;
-            case 'upcoming': stays = window.TaskFilters.isUpcoming(task, todayStr); break;
-            case 'done': stays = window.TaskFilters.isDone(task); break;
-            default: stays = true;
-        }
+        let stays = window.TaskFilters.matchesView(task, view, todayStr);
         if (stays && searchQuery) {
             stays = matchesSearch(task, searchQuery);
         }
@@ -940,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const isDescTextarea = e.target.classList.contains('edit-desc');
 
         if (e.key === 'Enter' && e.target.classList.contains('task-edit-input')) {
-            if (isDescTextarea && !(e.ctrlKey || e.metaKey)) return; // Enter di deskripsi = baris baru, bukan simpan
+            if (isDescTextarea && !(e.ctrlKey || e.metaKey)) return; 
             e.preventDefault();
             const saveBtn = li.querySelector('[data-action="edit-save"]');
             if (saveBtn) saveBtn.click();
