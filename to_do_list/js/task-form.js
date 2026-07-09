@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
     taskDescInput.insertAdjacentElement('afterend', descMetaRow);
 
     const PRIORITIES = [
-        { value: 'tinggi', label: 'Tinggi', className: 'priority-high' },
-        { value: 'sedang', label: 'Sedang', className: 'priority-medium' },
-        { value: 'rendah', label: 'Rendah', className: 'priority-low' }
+        { value: 'tinggi', label: 'High', className: 'priority-high' },
+        { value: 'sedang', label: 'Normal', className: 'priority-medium' },
+        { value: 'rendah', label: 'Low', className: 'priority-low' }
     ];
     let selectedPriority = null;
 
@@ -227,6 +227,73 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => taskInputBox.classList.remove('cancel-flash'), 500);
     }
 
+    // --- Urungkan (undo) saat Cancel tidak sengaja terklik ---
+    let lastCancelledSnapshot = null;
+    let cancelUndoTimeout = null;
+
+    const cancelUndoToast = document.createElement('div');
+    cancelUndoToast.className = 'cancel-undo-toast';
+
+    const cancelUndoText = document.createElement('span');
+    cancelUndoText.className = 'cancel-undo-text';
+    cancelUndoText.textContent = 'Formulir dibatalkan.';
+
+    const cancelUndoBtn = document.createElement('button');
+    cancelUndoBtn.type = 'button';
+    cancelUndoBtn.className = 'cancel-undo-btn';
+    cancelUndoBtn.textContent = 'Urungkan';
+
+    cancelUndoToast.appendChild(cancelUndoText);
+    cancelUndoToast.appendChild(cancelUndoBtn);
+    document.body.appendChild(cancelUndoToast);
+
+    function captureFormSnapshot() {
+        return {
+            title: taskTitleInput.value,
+            desc: taskDescInput.value,
+            date: taskDateInput.value,
+            category: categorySelect.value,
+            priority: selectedPriority
+        };
+    }
+
+    function isSnapshotEmpty(snapshot) {
+        return !snapshot.title.trim()
+            && !snapshot.desc.trim()
+            && !snapshot.category
+            && !snapshot.priority;
+    }
+
+    function restoreFormSnapshot(snapshot) {
+        taskTitleInput.value = snapshot.title;
+        taskDescInput.value = snapshot.desc;
+        taskDateInput.value = snapshot.date;
+        if (snapshot.category) categorySelect.value = snapshot.category;
+        if (snapshot.priority) selectPriority(snapshot.priority);
+        updateCharCounter();
+        updateDescCharCounter();
+        taskTitleInput.focus();
+    }
+
+    function showCancelUndoToast() {
+        cancelUndoToast.classList.add('show');
+        clearTimeout(cancelUndoTimeout);
+        cancelUndoTimeout = setTimeout(hideCancelUndoToast, 6000);
+    }
+
+    function hideCancelUndoToast() {
+        cancelUndoToast.classList.remove('show');
+        lastCancelledSnapshot = null;
+    }
+
+    cancelUndoBtn.addEventListener('click', function() {
+        if (lastCancelledSnapshot) {
+            restoreFormSnapshot(lastCancelledSnapshot);
+        }
+        clearTimeout(cancelUndoTimeout);
+        hideCancelUndoToast();
+    });
+
     function resetForm() {
         taskTitleInput.value = '';
         taskDescInput.value = '';
@@ -300,8 +367,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnSubmit.addEventListener('click', handleAddTask);
     btnCancel.addEventListener('click', function() {
+        const snapshot = captureFormSnapshot();
         resetForm();
         flashCancel();
+        if (!isSnapshotEmpty(snapshot)) {
+            lastCancelledSnapshot = snapshot;
+            showCancelUndoToast();
+        }
     });
 
     taskTitleInput.addEventListener('keydown', function(e) {
