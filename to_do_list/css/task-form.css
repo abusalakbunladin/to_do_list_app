@@ -152,7 +152,7 @@
 .task-category-select.error { border-color: #cf1322; }
 .task-category-select.shake { animation: shake 0.35s ease; }
 .task-category-select:hover { background-color: #c4d1f7; transition: 0.2s ease-in-out; border-color: #5c82ff; transform: scale(1.10); }
-.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); background-color: #c8e5ff; color: var(--text-main); transition: 0.2s ease-in-out; }
+.task-category-select:focus { box-shadow: 0 0 0 2px rgba(63, 92, 219, 0.15); background-color: #c8e5ff; color: var(--text-main); transition: 0.2s ease-in-out; transform: scale(1.10); }
 
 .category-error-row { min-height: 16px; margin-bottom: 6px; }
 
