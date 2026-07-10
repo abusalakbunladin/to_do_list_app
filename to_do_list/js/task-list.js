@@ -25,10 +25,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return tasks.filter(t => this.matchesView(t, view, todayStr));
         },
 
-        sortByDate: function (tasks) {
-            return [...tasks].sort((a, b) => a.date.localeCompare(b.date));
-        },
-
         PRIORITY_LEVEL: window.AppStore.PRIORITIES.reduce((acc, p, i, arr) => {
             acc[p.value] = arr.length - 1 - i;
             return acc;
@@ -475,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let pendingDelete = null;
 
-    function showUndoToast(items, message, restoreFn) {
+    function showUndoToast(items, message) {
         const existing = document.getElementById('undo-toast');
         if (existing) existing.remove();
         if (pendingDelete && pendingDelete.timeoutId) clearTimeout(pendingDelete.timeoutId);
@@ -494,19 +490,15 @@ document.addEventListener('DOMContentLoaded', function () {
         toast.querySelector('.undo-btn').addEventListener('click', () => {
             clearTimeout(timeoutId);
             if (pendingDelete) {
-                if (typeof pendingDelete.restoreFn === 'function') {
-                    pendingDelete.restoreFn();
-                } else {
-                    const sorted = [...pendingDelete.items].sort((a, b) => a.index - b.index);
-                    sorted.forEach(item => window.AppStore.tasks.splice(item.index, 0, item.task));
-                }
+                const sorted = [...pendingDelete.items].sort((a, b) => a.index - b.index);
+                sorted.forEach(item => window.AppStore.tasks.splice(item.index, 0, item.task));
                 pendingDelete = null;
                 window.AppStore.saveAndSync();
             }
             toast.remove();
         });
 
-        pendingDelete = { items, timeoutId, restoreFn };
+        pendingDelete = { items, timeoutId };
     }
 
     clearCompletedBtn.addEventListener('click', function () {
