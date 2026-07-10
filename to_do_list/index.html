@@ -131,34 +131,91 @@
                     <button class="close-modal">&times;</button>
                 </div>
                 
-                    <p>Selamat datang di aplikasi <strong>Daftar Tugas</strong> Kelompok! Berikut panduannya:</p>
+                    <p>Selamat datang di aplikasi <strong>Daftar Tugas</strong> Kelompok! Berikut panduan lengkapnya:</p>
+
                     <div class="help-section">
                         <h4>📌 Navigasi Menu</h4>
                         <div class="modal-body">
                             <ul>
-                                <li><strong>Tambah Tugas:</strong> Menambahkan tugas baru di menu Tambah Tugas.</li>
-                                <li><strong>Hari Ini:</strong> Menampilkan tugas hari ini yang belum diselesaikan.</li>
-                                <li><strong>Mendatang:</strong> Menampilkan tugas yang akan datang.</li>
-                                <li><strong>Selesai:</strong> Melihat daftar tugas yang sudah selesai.</li>
-                                <li><strong>Terlewat:</strong> Melihat tugas yang lewat tenggat dan belum selesai.</li>
-                                <li><strong>Semua Tugas:</strong> Melihat seluruh tugas.</li>
+                                <li><strong>Tambah Tugas:</strong> Menambahkan tugas baru lengkap dengan deskripsi, tanggal, kategori, dan prioritas.</li>
+                                <li><strong>Hari Ini:</strong> Tugas dengan tenggat hari ini yang belum selesai.</li>
+                                <li><strong>Mendatang:</strong> Tugas dengan tenggat di masa depan.</li>
+                                <li><strong>Selesai:</strong> Daftar tugas yang sudah kamu selesaikan.</li>
+                                <li><strong>Terlewat:</strong> Tugas yang lewat tenggat dan belum selesai.</li>
+                                <li><strong>Semua Tugas:</strong> Seluruh tugas, dikelompokkan otomatis per status.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h4>✏️ Menambah & Mengedit Tugas</h4>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Isi <strong>judul</strong> (wajib), deskripsi, tanggal, <strong>kategori</strong>, dan <strong>prioritas</strong> (Tinggi/Sedang/Rendah), lalu klik <strong>Tambah Tugas</strong>.</li>
+                                <li>Tekan <strong>Enter</strong> di kolom judul untuk langsung menyimpan tugas.</li>
+                                <li>Klik <strong>Edit</strong> pada tugas untuk mengubah datanya, atau <strong>Batal</strong> untuk membatalkan pengisian form.</li>
+                                <li>Klik kotak centang di sebelah tugas untuk menandainya selesai/belum selesai.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h4>🔍 Mencari, Memfilter & Mengurutkan</h4>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Gunakan kotak <strong>Cari tugas</strong> untuk menemukan tugas berdasarkan judul atau deskripsi.</li>
+                                <li>Saring daftar dengan filter <strong>Kategori</strong> dan <strong>Prioritas</strong>.</li>
+                                <li>Urutkan tugas berdasarkan Tanggal, Waktu Dibuat, Nama, atau Prioritas — klik tombol arah untuk membalik urutannya.</li>
+                                <li>Filter yang aktif akan muncul sebagai label di atas daftar; klik &times; atau <strong>Reset Filter</strong> untuk menghapusnya.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h4>☑️ Pilih & Aksi Massal</h4>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Klik <strong>☑️ Pilih</strong> untuk mengaktifkan mode pilih banyak tugas sekaligus.</li>
+                                <li>Tugas terpilih bisa <strong>diselesaikan</strong>, <strong>dibatalkan selesainya</strong>, atau <strong>dihapus</strong> secara bersamaan lewat bilah aksi yang muncul di bawah.</li>
+                                <li>Gunakan <strong>🧹 Hapus yang Selesai</strong> di tab Selesai untuk membersihkan tugas selesai sekaligus.</li>
+                                <li>Setelah menghapus, muncul notifikasi <strong>Undo</strong> selama beberapa detik untuk membatalkan penghapusan.</li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="help-section">
                         <h4>🔔 Notifikasi</h4>
-                        <div class="help-legend"> Berisi tugas terlewat atau belum dikerjakan hari ini.</div>
+                        <div class="modal-body">
+                            <p style="margin-bottom:8px;">Ikon lonceng menampilkan peringatan otomatis untuk tugas yang perlu perhatian:</p>
+                            <div class="help-legend"><span class="legend-dot red"></span> <strong>Terlewat</strong> — tenggat sudah lewat dan belum selesai.</div>
+                            <div class="help-legend"><span class="legend-dot yellow"></span> <strong>Hari Ini</strong> — tenggatnya hari ini.</div>
+                            <div class="help-legend"><span class="legend-dot blue"></span> <strong>Besok</strong> — tenggatnya besok, bersiaplah.</div>
+                            <p style="margin-top:8px;">Klik notifikasi untuk langsung menuju tugasnya, klik &times; untuk menyembunyikan satu notifikasi, atau <strong>Hapus Semua</strong> untuk membersihkan semuanya sekaligus.</p>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h4>👤 Profil & Progres</h4>
+                        <div class="modal-body">
+                            <p>Klik ikon profil untuk melihat total tugas, jumlah aktif/selesai, dan progres penyelesaian dalam persen.</p>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h4>💾 Cadangkan & Pulihkan Data</h4>
+                        <div class="modal-body">
+                            <p>Data tugas hanya tersimpan di browser ini. Buka menu Profil untuk <strong>mengunduh backup</strong> (file .json) secara berkala, atau <strong>memulihkan</strong> data dari file backup — berguna kalau kamu ganti perangkat atau membersihkan cache.</p>
+                        </div>
                     </div>
 
                     <div class="help-section">
                         <h4>💡 Tips Cepat</h4>
                         <div class="modal-body">
                             <ul>
-                                <li>Tekan tombol <strong>Esc</strong> untuk menutup jendela popup manapun.</li>
-                                <li>Klik ikon profil untuk melihat progres penyelesaian tugasmu.</li>
-                                <li>Isi tanggal tugas agar muncul otomatis di menu Hari Ini/Mendatang.</li>
-                                <li>Jika masih anda belum tahu, maka andanya memang <strong>PINTAR</strong>.</li>
+                                <li>Tekan <strong>Esc</strong> untuk menutup jendela popup manapun.</li>
+                                <li>Tekan <strong>Ctrl/Cmd + Enter</strong> di kolom deskripsi untuk langsung menyimpan tugas.</li>
+                                <li>Isi tanggal tugas agar otomatis muncul di menu Hari Ini/Mendatang/Terlewat.</li>
+                                <li>Klik ikon 🌙/☀️ di pojok kiri atas untuk beralih antara mode terang dan gelap.</li>
                             </ul>
                         </div>
                     </div>
