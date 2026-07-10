@@ -218,6 +218,30 @@
     transition: opacity 200ms ease;
 }
 
+.group-header-collapsible {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 6px;
+    margin: 2px 0;
+    transition: opacity 200ms ease, background-color var(--transition-fast);
+}
+.group-header-collapsible:hover { background-color: var(--hover-bg); }
+.group-header-collapsible:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+
+.group-header-chevron {
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1;
+    margin-right: 4px;
+    transition: transform 200ms ease;
+}
+.group-header-collapsible.collapsed .group-header-chevron {
+    transform: rotate(-90deg);
+}
+
 .task-item {
     display: flex;
     align-items: flex-start;
@@ -568,6 +592,7 @@ textarea.task-edit-input.edit-desc {
 
 @media (prefers-reduced-motion: reduce) {
     .task-item.select-blocked { animation: none; }
+    .group-header-chevron { transition: none; }
 }
 
 @media (max-width: 480px) {
