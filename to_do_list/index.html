@@ -25,10 +25,6 @@
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
-    <script>
-        window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -67,6 +63,10 @@
                     <li data-view="done">
                         <a href="#"><span class="icon">👌</span> Selesai </a>
                         <span class="count" id="count-done">0</span>
+                    </li>
+                    <li data-view="overdue">
+                        <a href="#"><span class="icon">⚠️</span> Terlewat </a>
+                        <span class="count" id="count-overdue">0</span>
                     </li>
                     <li data-view="all">
                         <a href="#"><span class="icon">📂</span> Semua Tugas </a>
@@ -136,6 +136,7 @@
                                 <li><strong>Hari Ini:</strong> Menampilkan tugas hari ini yang belum diselesaikan.</li>
                                 <li><strong>Mendatang:</strong> Menampilkan tugas yang akan datang.</li>
                                 <li><strong>Selesai:</strong> Melihat daftar tugas yang sudah selesai.</li>
+                                <li><strong>Terlewat:</strong> Melihat tugas yang lewat tenggat dan belum selesai.</li>
                                 <li><strong>Semua Tugas:</strong> Melihat seluruh tugas.</li>
                             </ul>
                         </div>
