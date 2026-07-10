@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const notifBadge = document.getElementById('notif-badge');
     const notifList = document.getElementById('notif-list');
 
-    // Toolbar "Hapus Semua" disisipkan lewat JS (di antara header & daftar notif),
-    // biar nggak perlu ngubah index.html.
     const notifModalHeader = document.querySelector('#modal-notif .modal-header');
     let clearAllNotifBtn = null;
     if (notifModalHeader) {
@@ -60,8 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
             readSet = new Set();
         }
  
-        // Buang entri punya tugas yang udah nggak ada lagi (misal sudah dihapus),
-        // biar localStorage nggak numpuk sampah selamanya.
         const store = window.AppStore;
         if (store && Array.isArray(store.tasks)) {
             const validIds = new Set(store.tasks.map(t => t.id));
@@ -129,9 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
  
     function getTomorrowString(todayStr) {
-        // Dihitung pakai komponen tahun/bulan/tanggal murni (bukan lewat toISOString),
-        // soalnya toISOString() konversi ke UTC dan bikin tanggal geser mundur
-        // buat timezone yang lebih maju dari UTC (misal WIB / UTC+7).
         const [year, month, day] = todayStr.split('-').map(Number);
         const utcDate = new Date(Date.UTC(year, month - 1, day));
         utcDate.setUTCDate(utcDate.getUTCDate() + 1);
@@ -297,7 +290,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 180);
     }
  
-    // Notif "Terlewat" -> tab Terlewat, "Hari Ini" -> tab Hari Ini, "Besok" -> tab Mendatang
     const NOTIF_CATEGORY_TO_VIEW = {
         'terlewat': 'overdue',
         'hampir-habis': 'today',
@@ -308,7 +300,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalNotif = document.getElementById('modal-notif');
         if (modalNotif && modalNotif.classList.contains('show')) closeModal(modalNotif);
 
-        // Reset filter pencarian & kategori di daftar tugas, biar tugasnya nggak ketutup filter lama
         const searchInput = document.getElementById('task-search');
         if (searchInput && searchInput.value) {
             searchInput.value = '';
@@ -320,7 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
             categoryFilterSelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
-        // Pindah ke tab yang sesuai sama jenis notifnya (fallback ke "Semua Tugas")
         const targetView = NOTIF_CATEGORY_TO_VIEW[category] || 'all';
         const navItem = document.querySelector(`.main-nav li[data-view="${targetView}"]`);
         if (navItem) navItem.click();
@@ -356,58 +346,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (statActive) statActive.textContent = active;
         if (progressBar) progressBar.style.width = percent + '%';
         if (progressLabel) progressLabel.textContent = `${percent}% selesai`;
-    }
- 
-    let currentHistoryFilter = 'all';
- 
-    function renderHistoryList() {
-        const historyList = document.getElementById('history-list');
-        const store = window.AppStore;
-        if (!historyList || !store) return;
- 
-        historyList.innerHTML = '';
- 
-        let tasks = [...store.tasks].sort((a, b) => new Date(b.date) - new Date(a.date));
- 
-        if (currentHistoryFilter === 'done') {
-            tasks = tasks.filter(t => t.completed);
-        } else if (currentHistoryFilter === 'pending') {
-            tasks = tasks.filter(t => !t.completed);
-        }
- 
-        if (tasks.length === 0) {
-            historyList.innerHTML = '<li class="history-empty">Belum ada tugas di kategori ini.</li>';
-            return;
-        }
- 
-        tasks.forEach(task => {
-            const li = document.createElement('li');
-            li.className = 'history-item' + (task.completed ? ' is-done' : ' is-pending');
-            li.innerHTML = `
-                <span class="history-icon">${task.completed ? '✅' : '⏳'}</span>
-                <span class="history-text">
-                    <span class="history-title">${store.escapeHTML(task.title)}</span>
-                    <span class="history-date">${task.date || 'Tanpa tanggal'}</span>
-                </span>
-            `;
-            historyList.appendChild(li);
-        });
-    }
- 
-    function setupHistoryFilters() {
-        const filterBtns = document.querySelectorAll('.history-filter .filter-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                filterBtns.forEach(b => {
-                    b.classList.remove('active');
-                    b.setAttribute('aria-selected', 'false');
-                });
-                this.classList.add('active');
-                this.setAttribute('aria-selected', 'true');
-                currentHistoryFilter = this.dataset.filter;
-                renderHistoryList();
-            });
-        });
     }
  
     function openModal(modal, triggerEl) {
@@ -511,7 +449,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (item.checkStats) {
                 renderProfileStats();
-                renderHistoryList();
             }
             openModal(item.modal, item.btn);
         });
@@ -533,11 +470,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
  
-    setupHistoryFilters();
     refreshNotifToolbar();
  
     setTimeout(() => {
         if (window.updateSidebarCounters) window.updateSidebarCounters();
         window.updateNotificationBadge();
     }, 100);
-});
+}
+                         );
