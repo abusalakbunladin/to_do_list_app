@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 case 'today': return this.isToday(task, todayStr);
                 case 'upcoming': return this.isUpcoming(task, todayStr);
                 case 'done': return this.isDone(task);
+                case 'overdue': return this.isOverdue(task, todayStr);
                 default: return true;
             }
         },
@@ -65,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'today': { icon: '📅', text: 'Tugas Hari Ini' },
         'upcoming': { icon: '🗓️', text: 'Tugas Mendatang' },
         'done': { icon: '👌', text: 'Tugas Selesai' },
+        'overdue': { icon: '⚠️', text: 'Tugas Terlewat' },
         'all': { icon: '📂', text: 'Semua Tugas' }
     };
 
@@ -247,6 +249,26 @@ document.addEventListener('DOMContentLoaded', function () {
     let scrollTargetId = null;
     let pulseId = null;
     let lastKnownIds = new Set();
+
+    const OVERDUE_COLLAPSE_KEY = 'overdueGroupCollapsed';
+
+    function loadOverdueCollapsed() {
+        try {
+            return localStorage.getItem(OVERDUE_COLLAPSE_KEY) === 'true';
+        } catch (err) {
+            return false;
+        }
+    }
+
+    function saveOverdueCollapsed(value) {
+        try {
+            localStorage.setItem(OVERDUE_COLLAPSE_KEY, value ? 'true' : 'false');
+        } catch (err) {
+            console.warn('Gagal menyimpan status lipat bagian Terlambat.', err);
+        }
+    }
+
+    let overdueCollapsed = loadOverdueCollapsed();
 
     function debounce(fn, delay) {
         let timeoutId;
@@ -679,10 +701,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function buildGroups(tasks, todayStr, mode, direction) {
-        const overdue = { label: '⚠️ Terlambat', tasks: [] };
-        const today = { label: `📅 Hari Ini • ${formatIndoDate(todayStr)}`, tasks: [] };
-        const upcoming = { label: '🗓️ Mendatang', tasks: [] };
-        const done = { label: '👌 Selesai', tasks: [] };
+        const overdue = { key: 'overdue', label: '⚠️ Terlambat', tasks: [] };
+        const today = { key: 'today', label: `📅 Hari Ini • ${formatIndoDate(todayStr)}`, tasks: [] };
+        const upcoming = { key: 'upcoming', label: '🗓️ Mendatang', tasks: [] };
+        const done = { key: 'done', label: '👌 Selesai', tasks: [] };
 
 
         tasks.forEach(t => {
@@ -767,10 +789,25 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isGroupedView) {
             buildGroups(base, todayStr, sortMode, sortDirection).forEach(group => {
                 const header = document.createElement('li');
-                header.className = 'group-header';
-                header.textContent = `${group.label} (${group.tasks.length})`;
+                const isOverdueGroup = group.key === 'overdue';
+                const isCollapsed = isOverdueGroup && overdueCollapsed;
+
+                header.className = 'group-header' + (isOverdueGroup ? ' group-header-collapsible' : '') + (isCollapsed ? ' collapsed' : '');
+
+                if (isOverdueGroup) {
+                    header.setAttribute('role', 'button');
+                    header.setAttribute('tabindex', '0');
+                    header.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+                    header.innerHTML = `<span>${group.label} (${group.tasks.length})</span><span class="group-header-chevron" aria-hidden="true">▾</span>`;
+                } else {
+                    header.textContent = `${group.label} (${group.tasks.length})`;
+                }
+
                 listContainer.appendChild(header);
-                group.tasks.forEach(task => listContainer.appendChild(createTaskElement(task, todayStr)));
+
+                if (!isCollapsed) {
+                    group.tasks.forEach(task => listContainer.appendChild(createTaskElement(task, todayStr)));
+                }
             });
         } else {
             window.TaskFilters.applySort(base, sortMode, sortDirection).forEach(task => {
@@ -855,6 +892,14 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     listContainer.addEventListener('click', function (e) {
+        const groupHeader = e.target.closest('.group-header-collapsible');
+        if (groupHeader) {
+            overdueCollapsed = !overdueCollapsed;
+            saveOverdueCollapsed(overdueCollapsed);
+            performRender();
+            return;
+        }
+
         const target = e.target.closest('[data-action]');
         if (!target) return;
 
@@ -954,6 +999,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     listContainer.addEventListener('keydown', function (e) {
+        const groupHeader = e.target.closest('.group-header-collapsible');
+        if (groupHeader && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            overdueCollapsed = !overdueCollapsed;
+            saveOverdueCollapsed(overdueCollapsed);
+            performRender();
+            return;
+        }
+
         const li = e.target.closest('.task-item-editing');
         if (!li) return;
 
