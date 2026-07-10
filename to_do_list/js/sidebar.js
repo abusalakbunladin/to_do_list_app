@@ -76,6 +76,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('count-done').textContent = filters
             ? filters.getByView(store.tasks, 'done', todayStr).length
             : store.tasks.filter(t => t.completed).length;
+        document.getElementById('count-overdue').textContent = filters
+            ? filters.getByView(store.tasks, 'overdue', todayStr).length
+            : store.tasks.filter(t => t.date < todayStr && !t.completed).length;
         document.getElementById('count-all').textContent = store.tasks.length;
     };
 });
