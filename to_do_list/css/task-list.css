@@ -119,20 +119,7 @@
 }
 .btn-sort-direction:hover { background: var(--hover-bg); }
 
-.btn-clear-completed {
-    border: none;
-    background: var(--danger-bg);
-    color: var(--danger-color);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    white-space: nowrap;
-    display: none;
-}
-.btn-clear-completed:hover { background: var(--danger-bg-hover); }
-
+.btn-clear-completed,
 .btn-clear-overdue {
     border: none;
     background: var(--danger-bg);
@@ -145,6 +132,7 @@
     white-space: nowrap;
     display: none;
 }
+.btn-clear-completed:hover,
 .btn-clear-overdue:hover { background: var(--danger-bg-hover); }
 
 .filter-indicator {
