@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <button type="button" id="btn-sort-direction" class="btn-sort-direction" title="Klik untuk membalik arah urutan"></button>
         <button type="button" id="btn-select-mode" class="btn-select-mode" title="Pilih beberapa tugas sekaligus">☑️ Pilih</button>
         <button type="button" id="btn-clear-completed" class="btn-clear-completed">🧹 Hapus yang Selesai</button>
+        <button type="button" id="btn-clear-overdue" class="btn-clear-overdue">🧹 Hapus yang Terlambat</button>
     `;
     listContainer.parentNode.insertBefore(toolbar, listContainer);
 
@@ -236,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const sortDirectionBtn = toolbar.querySelector('#btn-sort-direction');
     const selectModeBtn = toolbar.querySelector('#btn-select-mode');
     const clearCompletedBtn = toolbar.querySelector('#btn-clear-completed');
+    const clearOverdueBtn = toolbar.querySelector('#btn-clear-overdue');
 
     let searchQuery = '';
     let categoryFilter = '';
@@ -518,6 +520,18 @@ document.addEventListener('DOMContentLoaded', function () {
         store.saveAndSync();
     });
 
+    clearOverdueBtn.addEventListener('click', function () {
+        const store = window.AppStore;
+        const todayStr = store.getTodayString();
+        const removed = [];
+        store.tasks.forEach((t, idx) => { if (window.TaskFilters.isOverdue(t, todayStr)) removed.push({ task: t, index: idx }); });
+        if (removed.length === 0) return;
+
+        store.tasks = store.tasks.filter(t => !window.TaskFilters.isOverdue(t, todayStr));
+        showUndoToast(removed, `🧹 ${removed.length} tugas terlambat dihapus.`);
+        store.saveAndSync();
+    });
+
 
 
     function showDialog(message, buttons) {
@@ -755,6 +769,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const hasCompleted = store.tasks.some(t => t.completed);
         clearCompletedBtn.style.display = (store.currentView === 'done' && hasCompleted) ? 'inline-block' : 'none';
+
+        const hasOverdue = store.tasks.some(t => window.TaskFilters.isOverdue(t, todayStr));
+        clearOverdueBtn.style.display = (store.currentView === 'overdue' && hasOverdue) ? 'inline-block' : 'none';
 
         let base = window.TaskFilters.getByView(store.tasks, store.currentView, todayStr);
         if (searchQuery) base = base.filter(t => matchesSearch(t, searchQuery));
